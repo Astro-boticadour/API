@@ -1,0 +1,28 @@
+meta {
+  name: UpdateUser
+  type: http
+  seq: 3
+}
+
+put {
+  url: http://localhost:8000/api/utilisateurs/pdavid003
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: 1|EXR4vEqmx1W5Qs6j8Wo4NtzCEzOPG2KwdGqfHEJVc5a98d08
+}
+
+body:json {
+  {
+    "login" : "ndargazan",
+    "nom" : "dargazanli",
+    "prenom" : "nicolas",
+  }
+}
+
+body:multipart-form {
+  prenom: Pierresss
+  nom: DAVID
+}

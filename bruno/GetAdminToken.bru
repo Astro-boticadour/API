@@ -1,0 +1,16 @@
+meta {
+  name: GetAdminToken
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:8000/api/admin/login
+  body: none
+  auth: basic
+}
+
+auth:basic {
+  username: admin
+  password: admin
+}
