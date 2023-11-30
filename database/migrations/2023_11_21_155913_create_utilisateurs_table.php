@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('login')->primary();
             $table->string('nom');
             $table->string('prenom');
-            $table->string('badge_token')->nullable()->unique();
+            $table->string('pole');
             $table->timestamps();
         });
     }

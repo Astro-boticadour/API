@@ -18,11 +18,10 @@ class utilisateurs extends Model
         'login',
         'nom',
         'prenom',
-        'badge_token',
+        'pole',
     ];
 
     protected $hidden = [
-        'badge_token',
         'created_at',
         'updated_at',
     ];

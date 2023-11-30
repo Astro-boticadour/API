@@ -32,7 +32,7 @@ class UtilisateursController extends Controller
                 'login' => 'required|unique:utilisateurs',
                 'nom' => 'required',
                 'prenom' => 'required',
-                'badge_token' => 'unique:utilisateurs',
+                'pole' => 'required',
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return sendResponse("error", $e->errors(), 400);
