@@ -7,10 +7,10 @@
  * @param int $code
  * @return \Illuminate\Http\JsonResponse
 */
-function sendResponse($status,$message,$code){
+function sendResponse($status,$result,$code){
     $response = [
         'status' => $status,
-        'message' => $message,
+        'result' => $result,
     ];
     return response()->json($response, $code);
 }

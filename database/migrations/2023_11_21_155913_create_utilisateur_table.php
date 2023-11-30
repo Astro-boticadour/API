@@ -11,10 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('admin', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('login')-> unique();
-            $table->string('password');    
+        Schema::create('utilisateur', function (Blueprint $table) {
+            // Un utilisateur a un identifiant login sous forme de chaîne de caractères, un nom, un prenom, et un badge_token
+            $table->string('login')->primary();
+            $table->string('nom');
+            $table->string('prenom');
+            $table->string('pole');
             $table->timestamps();
         });
     }
@@ -24,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('admin');
+        Schema::dropIfExists('utilisateur');
     }
 };

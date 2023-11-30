@@ -21,17 +21,17 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 
-use App\Http\Controllers\UtilisateursController;
+use App\Http\Controllers\UtilisateurController;
 // Free access
-Route::get('/utilisateurs', [UtilisateursController::class, 'index']);
-Route::get('/utilisateurs/{login}', [UtilisateursController::class, 'show']);
+Route::get('/utilisateur', [UtilisateurController::class, 'index']);
+Route::get('/utilisateur/{login}', [UtilisateurController::class, 'show']);
 
 
 // Admin authentification needed
-Route::post('/utilisateurs', [UtilisateursController::class, 'store'])->middleware('auth:sanctum');
-Route::put('/utilisateurs/{login}', [UtilisateursController::class, 'update'])->middleware('auth:sanctum');
-Route::delete('/utilisateurs/{login}', [UtilisateursController::class, 'delete'])->middleware('auth:sanctum');
-Route::post('/utilisateurs/login', [UtilisateursController::class, 'login'])->middleware('auth:sanctum');
+Route::post('/utilisateur', [UtilisateurController::class, 'store'])->middleware('auth:sanctum');
+Route::put('/utilisateur/{login}', [UtilisateurController::class, 'update'])->middleware('auth:sanctum');
+Route::delete('/utilisateur/{login}', [UtilisateurController::class, 'delete'])->middleware('auth:sanctum');
+Route::post('/utilisateur/login', [UtilisateurController::class, 'login'])->middleware('auth:sanctum');
 
 
 use App\Http\Controllers\AdminController;

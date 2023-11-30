@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 
+
 class AdminController extends Controller
 {
     // CREATION DE L'ADMIN
@@ -52,9 +53,9 @@ class AdminController extends Controller
 
                 // On crée un token valide 12h
                 $date = now()->addHours(12);
-                $token = $admin->createToken('admin',["*"], $date)->plainTextToken;
+                $token = $admin->createToken($login,["*"],$date)->plainTextToken;
                 // On renvoie le token
-                return sendResponse('success', $token, 200);
+                return sendResponse('success',['token' => $token], 200);
             }
         }
         return sendError('Utilisateur ou mot de passe incorrect', 401);

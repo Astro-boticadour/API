@@ -1,0 +1,23 @@
+meta {
+  name: UpdateUser
+  type: http
+  seq: 4
+}
+
+put {
+  url: http://localhost:8000/api/utilisateur/pdavid003
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: 4|kit524Hn2koTNnaOaOCohLnO71ARsu2zzWC8fFDH663d4997
+}
+
+body:json {
+  {
+    "prenom": "Pierre",
+    "nom": "DAVID",
+    "pole": "gestion"
+  }
+}

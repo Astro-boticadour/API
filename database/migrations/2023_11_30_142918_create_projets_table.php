@@ -11,12 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('utilisateurs', function (Blueprint $table) {
-            // Un utilisateur a un identifiant login sous forme de chaîne de caractères, un nom, un prenom, et un badge_token
-            $table->string('login')->primary();
-            $table->string('nom');
-            $table->string('prenom');
-            $table->string('pole');
+        Schema::create('projets', function (Blueprint $table) {
+            $table->id();
             $table->timestamps();
         });
     }
@@ -26,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('utilisateurs');
+        Schema::dropIfExists('projets');
     }
 };
