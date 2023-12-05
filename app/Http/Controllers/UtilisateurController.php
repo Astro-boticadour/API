@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\utilisateur;
 use Illuminate\Http\Request;
+use App\Models\utilisateur;
 
 class UtilisateurController extends Controller
 {
@@ -48,6 +48,20 @@ class UtilisateurController extends Controller
         if (is_null($utilisateur)) {
             return sendError('utilisateur non trouvé', 404);
         }
+        try {
+            // Si il ya le champ login on le supprime car il est unique
+            
+            if ($request->has('login')) {
+                unset($request['login']);
+            }
+            $request->validate([
+                'nom' => 'string',
+                'prenom' => 'string',
+                'pole' => 'string',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return sendError($e->errors(), 400);
+        }
 
         $utilisateur->update($request->all());        
         $utilisateur->save();
@@ -55,7 +69,7 @@ class UtilisateurController extends Controller
         return sendResponse('success', $utilisateur,200);
     }
 
-    public function delete(Request $request, $login)
+    public function destroy(Request $request, $login)
     {
         $utilisateur = utilisateur::find($login);
         if (is_null($utilisateur)) {

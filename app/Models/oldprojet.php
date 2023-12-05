@@ -21,4 +21,9 @@ class projet extends Model
         "created_at",
         "updated_at"
         ];
-}
+    }
+?>
+
+
+
+

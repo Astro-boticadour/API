@@ -21,6 +21,15 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 
+use App\Http\Controllers\AdminController;
+// on peut utiliser le middleware sanctum pour verifier que l'admin utilise un token valide
+
+
+Route::post('/admin', [AdminController::class, 'store'])->middleware('auth:sanctum');
+Route::post('/admin/login', [AdminController::class, 'login']);
+
+
+
 use App\Http\Controllers\UtilisateurController;
 // Free access
 Route::get('/utilisateur', [UtilisateurController::class, 'index']);
@@ -30,13 +39,20 @@ Route::get('/utilisateur/{login}', [UtilisateurController::class, 'show']);
 // Admin authentification needed
 Route::post('/utilisateur', [UtilisateurController::class, 'store'])->middleware('auth:sanctum');
 Route::put('/utilisateur/{login}', [UtilisateurController::class, 'update'])->middleware('auth:sanctum');
-Route::delete('/utilisateur/{login}', [UtilisateurController::class, 'delete'])->middleware('auth:sanctum');
+Route::delete('/utilisateur/{login}', [UtilisateurController::class, 'destroy'])->middleware('auth:sanctum');
 Route::post('/utilisateur/login', [UtilisateurController::class, 'login'])->middleware('auth:sanctum');
 
 
-use App\Http\Controllers\AdminController;
-// on peut utiliser le middleware sanctum pour verifier que l'admin utilise un token valide
+
+use App\Http\Controllers\ProjetController;
+// Free access
+Route::get('/projet', [ProjetController::class, 'index']);
+Route::get('/projet/{id}', [ProjetController::class, 'show']);
+
+// Admin authentification needed
+Route::post('/projet', [ProjetController::class, 'store'])->middleware('auth:sanctum');
+Route::put('/projet/{id}', [ProjetController::class, 'update'])->middleware('auth:sanctum');
+Route::delete('/projet/{id}', [ProjetController::class, 'destroy'])->middleware('auth:sanctum');
 
 
-Route::post('/admin', [AdminController::class, 'store'])->middleware('auth:sanctum');
-Route::post('/admin/login', [AdminController::class, 'login']);
+

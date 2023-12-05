@@ -8,12 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class utilisateur extends Model
 {
     use HasFactory;
-    protected $table = 'utilisateur';
-    protected $primaryKey = 'login';
-    public $incrementing = false;
     protected $keyType = 'string';
-
-
+    protected $table = "utilisateurs";
+    protected $primaryKey = "login";
     protected $fillable = [
         'login',
         'nom',
@@ -25,7 +22,4 @@ class utilisateur extends Model
         'created_at',
         'updated_at',
     ];
-
-
-
 }

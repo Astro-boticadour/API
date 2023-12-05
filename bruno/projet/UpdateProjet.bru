@@ -1,0 +1,24 @@
+meta {
+  name: UpdateProjet
+  type: http
+  seq: 4
+}
+
+put {
+  url: http://localhost:8000/api/projet/2
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: 1|79YkaSEKrZliYE99oOT8WE7RSPEJszCZpwaSPQq263043eda
+}
+
+body:json {
+  {
+    "nom" : "Airbus proto",
+    "dateFin" : "10/30/2024",
+    "dateDebut" : "11/30/2022",
+    "description" : "Proto airbus pour leurs avions"
+  }
+}
