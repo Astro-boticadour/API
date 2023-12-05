@@ -80,6 +80,6 @@ class ProjetController extends Controller
             return sendError('projet non trouvé', 404);
         }
         $projet->delete();
-        return sendResponse('success', 'projet supprimé',200);
+        return sendResponse('success',$projet,200);
     }
 }

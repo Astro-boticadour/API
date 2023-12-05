@@ -50,7 +50,6 @@ class UtilisateurController extends Controller
         }
         try {
             // Si il ya le champ login on le supprime car il est unique
-            
             if ($request->has('login')) {
                 unset($request['login']);
             }
