@@ -56,3 +56,12 @@ Route::delete('/projet/{id}', [ProjetController::class, 'destroy'])->middleware(
 
 
 
+use App\Http\Controllers\RessourceController;
+// Free access
+Route::get('/ressource', [RessourceController::class, 'index']);
+Route::get('/ressource/{id}', [RessourceController::class, 'show']);
+
+// Admin authentification needed
+Route::post('/ressource', [RessourceController::class, 'store'])->middleware('auth:sanctum');
+Route::put('/ressource/{id}', [RessourceController::class, 'update'])->middleware('auth:sanctum');
+Route::delete('/ressource/{id}', [RessourceController::class, 'destroy'])->middleware('auth:sanctum');

@@ -1,0 +1,23 @@
+meta {
+  name: CreateNewRessource
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8000/api/ressource
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: 3|ZhJx2KeCDYhufJsNEedcBKapbGvDoPYYYE3rweg3b5776d32
+}
+
+body:json {
+  {
+    "nom":"sami",
+    "modele" : "K7376",
+    "type" : "sauce"
+  }
+}

@@ -1,0 +1,24 @@
+meta {
+  name: DeleteRessource
+  type: http
+  seq: 4
+}
+
+put {
+  url: http://localhost:8000/api/ressource/1
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: 4|REeZk7eTVdtCjVG8HKXw0xfPh0gKVyo5oYXAd57C97df7d22
+}
+
+body:json {
+  {
+    "nom":"samiture",
+    "modele" : "K7376",
+    "type" : "sauce",
+    "estUtilise" : 1
+  }
+}

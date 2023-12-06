@@ -29,7 +29,7 @@ class UtilisateurController extends Controller
     {
         try {
             $request->validate([
-                'login' => 'required|unique:utilisateur',
+                'login' => 'required|unique:utilisateurs',
                 'nom' => 'required',
                 'prenom' => 'required',
                 'pole' => 'required',
