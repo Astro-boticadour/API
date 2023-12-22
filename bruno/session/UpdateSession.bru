@@ -1,0 +1,19 @@
+meta {
+  name: UpdateSession
+  type: http
+  seq: 4
+}
+
+put {
+  url: http://localhost:8000/api/session/2
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "horodatageFin" : 1702959497,
+    "idProjet" : 1,
+    "loginUtilisateur" : "pdavid003"
+  }
+}

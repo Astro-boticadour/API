@@ -1,0 +1,15 @@
+meta {
+  name: DeleteSession
+  type: http
+  seq: 5
+}
+
+delete {
+  url: http://localhost:8000/api/session/3
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: 2|JJELRQl7SjaEFwPYldHFGhdNzHqG0MDEjOwKPSIq608f74ae
+}

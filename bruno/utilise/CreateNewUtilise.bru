@@ -1,0 +1,19 @@
+meta {
+  name: CreateNewUtilise
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8000/api/utilise
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "idRessource" : 1,
+    "idSession" : 1,
+    "horodatageDebutUtilisation" : 1657265376
+  }
+}

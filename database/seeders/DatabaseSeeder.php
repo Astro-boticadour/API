@@ -5,6 +5,10 @@ namespace Database\Seeders;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Admin;
+use App\Models\Utilisateur;
+use App\Models\Projet;
+use App\Models\Ressource;
+
 use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
@@ -26,6 +30,28 @@ class DatabaseSeeder extends Seeder
             'login' => 'admin',
             'password' => Hash::make('admin'),
         ]);
+
+        Utilisateur::create([
+            'login' => 'pdavid003',
+            'nom' => 'David',
+            'prenom' => 'Paul',
+            'pole' => 'DSI',
+        ]);
+
+        Projet::create([
+            'nom' => 'Projet Airbus',
+            'description' => 'Description du projet 1',
+            'dateDebut' => '2021-01-01',
+            'dateFin' => '2021-12-31',
+            'estClos' => false,
+        ]);
+
+        Ressource::create([
+            'nom' => 'sami',
+            'modele' => 'K7376',
+            'type' => 'sauce',
+        ]);
+            
         
     }
 }
