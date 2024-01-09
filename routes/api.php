@@ -34,7 +34,7 @@ use App\Http\Controllers\UtilisateurController;
 // Free access
 Route::get('/utilisateur', [UtilisateurController::class, 'index']);
 Route::get('/utilisateur/{login}', [UtilisateurController::class, 'show']);
-
+Route::get('/utilisateur/{login}/sessions', [UtilisateurController::class, 'sessions']);
 
 // Admin authentification needed
 Route::post('/utilisateur', [UtilisateurController::class, 'store'])->middleware('auth:sanctum');
@@ -73,6 +73,8 @@ Route::get('/session', [SessionController::class, 'index']);
 Route::get('/session/{id}', [SessionController::class, 'show']);
 Route::post('/session', [SessionController::class, 'store']);
 Route::put('/session/{id}', [SessionController::class, 'update']);
+route::get('/session/activesessions/{login}', [SessionController::class, 'activesessions']);
+route::get('/session/user/{login}', [SessionController::class, 'all_sessions']);
 
 // Admin authentification needed
 Route::delete('/session/{id}', [SessionController::class, 'destroy'])->middleware('auth:sanctum');

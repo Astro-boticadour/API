@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\session;
+use App\Models\utilisateur;
 
 class SessionController extends Controller
 {
@@ -97,6 +98,38 @@ class SessionController extends Controller
         }
         $session->delete();
         return sendResponse('success', $session,200);
+    }
+
+        /*
+    *   Retourne les sessions d'un utilisateur, si il en a une
+    *   Pour ca on regarde dans la table session si l'idUtilisateur est égal à l'id de l'utilisateur
+    */
+    public function activesessions($login)
+    {
+        $utilisateur = utilisateur::find($login);
+        if (is_null($utilisateur)) {
+            return sendError('utilisateur non trouvé', 404);
+        }
+        // On ne retourne que les sessions qui ont un horodatage de fin de session null (donc en cours)
+        $sessions = session::where('loginUtilisateur', $login)->whereNull('horodatageFin')->get();
+        // On renvois un objet json avec working = true si il y a une session en cours, false sinon et l'objet session ,'en a qu'un
+        if (count($sessions) == 0) {
+            return sendResponse('success', ['working' => false],200);
+        }
+        return sendResponse('success', ['working' => true, 'session' => $sessions[0]],200);
+
+    }
+
+    public function all_sessions($login)
+    // Retourne toutes les sessions d'un utilisateur, finies ou non
+    {
+        $utilisateur = utilisateur::find($login);
+        if (is_null($utilisateur)) {
+            return sendError('utilisateur non trouvé', 404);
+        }
+        // On ne retourne que les sessions qui ont un horodatage de fin de session non null (donc terminée)
+        $sessions = session::where('loginUtilisateur', $login)->get();
+        return sendResponse('success', $sessions,200);
     }
 
 
