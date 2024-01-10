@@ -5,13 +5,13 @@ meta {
 }
 
 put {
-  url: http://localhost:8000/ressource/2
+  url: {{baseUrl}}/ressource/2
   body: json
   auth: bearer
 }
 
 auth:bearer {
-  token: 5|FOtUqOqhgUKqoQZYwj5RkoF37LHLf9owApZUQJFE505b01bf
+  token: {{token}}
 }
 
 body:json {

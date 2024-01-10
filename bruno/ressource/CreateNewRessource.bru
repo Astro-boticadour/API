@@ -5,13 +5,13 @@ meta {
 }
 
 post {
-  url: http://localhost:8000/ressource
+  url: {{baseUrl}}/ressource
   body: json
   auth: bearer
 }
 
 auth:bearer {
-  token: 1|IeF3oRuPbtmjlwzMEQxVXCusZLo7kzftBjTVtV2Ba41eda75
+  token: {{token}}
 }
 
 body:json {
