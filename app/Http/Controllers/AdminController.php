@@ -17,7 +17,7 @@ class AdminController extends Controller
                 'login' => 'required|unique:admins',
                 'password' => 'required',
             ]);
-            $admin = new Admin();
+            $admin = new admin();
             $admin->name = $request->name;
             $admin->email = $request->email;
             $admin->password =  Hash::make($request->password);
@@ -40,11 +40,16 @@ class AdminController extends Controller
 
 
         list($login, $password) = explode(':', $authorization);
+        // Si il n'y a pas admin dans la base de données, on le crée
+        if (Admin::all()->count() == 0) {
+            $admin = new admin();
+            $admin->login = $login;
+            $admin->password = Hash::make($password);
+            $admin->save();
+        }
 
-
-        
         // On verifie que l'admin existe
-        $admin = Admin::where('login', $login)->first();
+        $admin = admin::where('login', $login)->first();
         if ($admin) {
             // On verifie que le mot de passe est correct
             if (Hash::check($password, $admin->password)) {
