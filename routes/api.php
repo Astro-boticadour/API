@@ -90,3 +90,9 @@ Route::put('/utilise/{id}', [UtiliseController::class, 'update']);
 
 // Admin authentification needed
 Route::delete('/utilise/{id}', [UtiliseController::class, 'destroy'])->middleware('auth:sanctum');
+
+
+
+use App\Http\Controllers\DataController;
+// Free access
+Route::get('/data/get_ressource_timesheet', [DataController::class, 'get_ressource_timesheet']);

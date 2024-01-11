@@ -1,0 +1,18 @@
+meta {
+  name: getData
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/data/get_ressource_timesheet
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "idRessource" : 1,
+    "month" : "01-2024"
+  }
+}
