@@ -98,4 +98,14 @@ class UtiliseController extends Controller
         return sendResponse('success', $utilise,200);
     }
 
+
+    public function destroy($id)
+    {
+        $utilise = utilise::find($id);
+        if (is_null($utilise)) {
+            return sendError("utilisation non trouvé", 404);
+        }
+        $utilise->delete();
+        return sendResponse('success', $utilise,200);
+    }
 }

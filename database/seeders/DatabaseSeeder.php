@@ -25,11 +25,6 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
 
-        // On crée un administrateur par défaut avec le mot de passe 'admin'
-        Admin::create([
-            'login' => 'admin',
-            'password' => Hash::make('admin'),
-        ]);
 
         Utilisateur::create([
             'login' => 'pdavid003',

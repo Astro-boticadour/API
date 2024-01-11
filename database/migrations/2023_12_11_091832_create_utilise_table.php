@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('utilise', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('idSession')->constrained('sessions');
-            $table->foreignId('idRessource')->constrained('ressources');
+            $table->foreignId('idSession')->constrained('sessions')->onDelete('cascade');
+            $table->foreignId('idRessource')->constrained('ressources')->onDelete('cascade');
             $table->integer('horodatageDebutUtilisation');
             $table->integer('horodatageFinUtilisation')->nullable();
             $table->timestamps();

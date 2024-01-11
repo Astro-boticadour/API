@@ -17,8 +17,8 @@ return new class extends Migration
             $table->integer('horodatageDebut');
             $table->integer('horodatageFin')->nullable();
             $table->string('loginUtilisateur');
-            $table->foreignId('idProjet')->constrained('projets');
-            $table->foreign('loginUtilisateur')->references('login')->on('utilisateurs');
+            $table->foreignId('idProjet')->constrained('projets')->onDelete('cascade');
+            $table->foreign('loginUtilisateur')->references('login')->on('utilisateurs')->onDelete('cascade');
             $table->timestamps();
         });
     }
