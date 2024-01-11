@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\utilise;
 use App\Models\session;
+use App\Models\ressource;
 
 class UtiliseController extends Controller
 {
@@ -62,8 +63,20 @@ class UtiliseController extends Controller
             }
         }
         
-
         $utilise = utilise::create($request->all());
+
+        // On met à jour le champ estUtilise de la ressource
+        $check = utilise::where('idRessource', $utilise['idRessource'])->get();
+        if ($check->whereNull('horodatageFinUtilisation')->count()){
+            $ressource = ressource::find($utilise['idRessource']);
+            $ressource->estUtilise = 1;
+            $ressource->save();
+        }
+        else{
+            $ressource = ressource::find($utilise['idRessource']);
+            $ressource->estUtilise = 0;
+            $ressource->save();
+        }
         return sendResponse('success', $utilise,200);
     }
 
@@ -72,7 +85,7 @@ class UtiliseController extends Controller
     {
         try {
             $request->validate([
-                'horodatageDebutUtilisation' => 'required | integer',
+                'horodatageDebutUtilisation' => ' integer',
                 'horodatageFinUtilisation' => 'required | integer',
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -80,7 +93,7 @@ class UtiliseController extends Controller
         }
 
         # Il faut vérifier que l'horodatage de début d'utilisation est positif et qu'il possède 10 chiffres
-        if ($request['horodatageDebutUtilisation'] < 0  || strlen($request['horodatageDebutUtilisation']) != 10) {
+        if ($request['horodatageDebutUtilisation'] && ($request['horodatageDebutUtilisation'] < 0  || strlen($request['horodatageDebutUtilisation']) != 10)) {
             return sendError("L'horodatage de début d'utilisation doit être positif", 400);
         }
 
@@ -95,6 +108,18 @@ class UtiliseController extends Controller
         }
 
         $utilise->update($request->all());
+        // On met à jour le champ estUtilise de la ressource
+        $check = utilise::where('idRessource', $utilise['idRessource'])->get();
+        if ($check->whereNull('horodatageFinUtilisation')->count()){
+            $ressource = ressource::find($utilise['idRessource']);
+            $ressource->estUtilise = 1;
+            $ressource->save();
+        }
+        else{
+            $ressource = ressource::find($utilise['idRessource']);
+            $ressource->estUtilise = 0;
+            $ressource->save();
+        }
         return sendResponse('success', $utilise,200);
     }
 
@@ -106,6 +131,20 @@ class UtiliseController extends Controller
             return sendError("utilisation non trouvé", 404);
         }
         $utilise->delete();
+        // On met à jour le champ estUtilise de la ressource
+        $check = utilise::where('idRessource', $utilise['idRessource'])->get();
+        if ($check->whereNull('horodatageFinUtilisation')->count()){
+            $ressource = ressource::find($utilise['idRessource']);
+            $ressource->estUtilise = 1;
+            $ressource->save();
+        }
+        else{
+            $ressource = ressource::find($utilise['idRessource']);
+            $ressource->estUtilise = 0;
+            $ressource->save();
+        }
+
+
         return sendResponse('success', $utilise,200);
     }
 }
