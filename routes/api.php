@@ -75,6 +75,7 @@ Route::post('/session', [SessionController::class, 'store']);
 Route::put('/session/{id}', [SessionController::class, 'update']);
 route::get('/session/activesessions/{login}', [SessionController::class, 'activesessions']);
 route::get('/session/user/{login}', [SessionController::class, 'all_sessions']);
+route::get('/session/usage/{id}', [SessionController::class, 'usage']);
 
 // Admin authentification needed
 Route::delete('/session/{id}', [SessionController::class, 'destroy'])->middleware('auth:sanctum');

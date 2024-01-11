@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\session;
 use App\Models\utilisateur;
+use App\Models\utilise;
 
 class SessionController extends Controller
 {
@@ -130,6 +131,14 @@ class SessionController extends Controller
         // On ne retourne que les sessions qui ont un horodatage de fin de session non null (donc terminée)
         $sessions = session::where('loginUtilisateur', $login)->get();
         return sendResponse('success', $sessions,200);
+    }
+
+    public function usage($idSession)
+    // Retourne tout les occurences de la table utilise qui ont l'idSession en paramètre
+    {   
+        // Et horodatageFinUtilisation est null (donc en cours)
+        $utilise = utilise::where('idSession', $idSession)->whereNull('horodatageFinUtilisation')->get();
+        return sendResponse('success', $utilise,200);
     }
 
 
