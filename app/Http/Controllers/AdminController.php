@@ -30,6 +30,7 @@ class AdminController extends Controller
     // CONNEXION DE L'ADMIN
     public function login(Request $request)
     {
+        
         // On utilise un basic auth pour se connecter, pour ca on va chercher dans "authorization" du header de la requete 
         try {
             $authorization = base64_decode(explode(" ",$request->header('authorization'))[1]);
