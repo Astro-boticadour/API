@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\session;
 use App\Models\utilisateur;
 use App\Models\utilise;
+use App\Models\ressource;
 
 class SessionController extends Controller
 {
@@ -66,8 +67,8 @@ class SessionController extends Controller
                 // On veut que la date soit au format Y-m-d H:i:s
                 'horodatageDebut' => 'integer',
                 'horodatageFin' => 'integer',
-                'idProjet' => 'required',
-                'loginUtilisateur' => 'required'
+                'idProjet' => 'exists:projets,id',
+                'loginUtilisateur' => 'exists:utilisateurs,login'
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return sendError($e->errors(), 400);
@@ -87,6 +88,24 @@ class SessionController extends Controller
         if (is_null($session)) {
             return sendError('session non trouvé', 404);
         }
+        // Si on a un horodatage de fin,
+        //  On recupere toutes les utilisations lié a cette session 
+        // et on met l'horodatage de fin de session et on met toutes les ressources en non utilisé
+
+        if ($request->has('horodatageFin')){
+            $utilise = utilise::where('idSession', $id)->whereNull('horodatageFinUtilisation')->get();
+            // On recupere toutes les ressources utilisé par cette session
+            $array=ressource::whereIn('id', $utilise->pluck('idRessource'))->get();
+            // On met toutes les ressources en non utilisé
+            foreach ($array as $ressource) {
+                $ressource->update(['estUtilise' => false]);
+            }
+            // On met l'horodatage de fin de chaque utilisation
+            foreach ($utilise as $utilisation) {
+                $utilisation->update(['horodatageFinUtilisation' => $request['horodatageFin']]);
+            }
+        }
+        
         $session->update($request->all());
         return sendResponse('success', $session,200);
     }
