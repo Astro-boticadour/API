@@ -45,23 +45,6 @@ class DataController extends Controller
             ->get()->groupBy('projectName');
         
 
-        // code sql de la requête : 
-
-        // On veut recuperer un truc du genre :
-        // {
-        //     "status": "success",
-        //     "result": [
-        //       {
-        //         "projectName": "ICNDE",
-        //         "workingDays": [] // tableau de 31 jours, chaque jour contient le nombre d'heures travaillées dans l'ordre
-        //       },
-        //       {
-        //         "projectName": "R&D Interne",
-        //         "workingDays": []
-        //       }
-        //     ]
-        //   }
-
         $results = $results->map(function ($project) use ($nb_jours_dans_le_mois) {
             $workingDays = [];
             for ($i = 1; $i <= $nb_jours_dans_le_mois; $i++) {
