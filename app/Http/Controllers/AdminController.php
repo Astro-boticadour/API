@@ -40,7 +40,7 @@ class AdminController extends Controller
         }
 
 
-        list($login, $password) = explode(':', $authorization);
+        list($login, $password) = explode(':', $authorization, 2);
         // Si il n'y a pas admin dans la base de données, on le crée
         if (Admin::all()->count() == 0) {
             $admin = new admin();

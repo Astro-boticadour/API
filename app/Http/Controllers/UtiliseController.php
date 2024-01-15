@@ -42,6 +42,14 @@ class UtiliseController extends Controller
             return sendError($e->errors(), 400);
         }
 
+        // On recupere la session pour voir si elle est pas fermée
+        if (session::find($request['idSession'])->is_closed()) {
+            return sendResponse('error', "La session est déjà fermée", 400);
+        }
+
+
+
+
         # Il faut vérifier que l'horodatage de début d'utilisation est positif et qu'il possède 10 chiffres
         if ($request['horodatageDebutUtilisation'] < 0  || strlen($request['horodatageDebutUtilisation']) != 10) {
             return sendError("L'horodatage de début d'utilisation doit être positif", 400);
@@ -92,6 +100,7 @@ class UtiliseController extends Controller
             return sendError($e->errors(), 400);
         }
 
+
         # Il faut vérifier que l'horodatage de début d'utilisation est positif et qu'il possède 10 chiffres
         if ($request['horodatageDebutUtilisation'] && ($request['horodatageDebutUtilisation'] < 0  || strlen($request['horodatageDebutUtilisation']) != 10)) {
             return sendError("L'horodatage de début d'utilisation doit être positif", 400);
@@ -105,6 +114,11 @@ class UtiliseController extends Controller
         $utilise = utilise::find($id);
         if (is_null($utilise)) {
             return sendError("utilisation non trouvé", 404);
+        }
+
+        // On recupere la session pour voir si elle est pas fermée
+        if (session::find($utilise['idSession'])->is_closed()) {
+            return sendResponse('error', "La session est déjà fermée", 400);
         }
 
         $utilise->update($request->all());

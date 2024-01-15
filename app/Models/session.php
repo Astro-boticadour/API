@@ -29,4 +29,9 @@ class session extends Model
     {
         return $this->belongsTo(utilisateur::class, 'idUtilisateur');
     }
+
+    public function is_closed(){
+        return !is_null($this->horodatageFin);
+    }
 }
+
