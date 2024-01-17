@@ -33,5 +33,9 @@ class session extends Model
     public function is_closed(){
         return !is_null($this->horodatageFin);
     }
+
+    public static function get_user_session($login){
+        return session::where('loginUtilisateur', $login)->whereNull('horodatageFin')->first();
+    }
 }
 

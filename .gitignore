@@ -17,7 +17,7 @@ public_html/hot
 
 storage/*.key
 .env
-*.lock
+composer.lock
 Homestead.yaml
 Homestead.json
 /.vagrant

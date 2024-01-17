@@ -22,13 +22,8 @@ class SessionController extends Controller
     public function store(Request $request)
     {
 
-        // Si l'utilisateur a deja une session en cours, on ne peut pas en créer une autre
-        $session = session::where('loginUtilisateur', $request['loginUtilisateur'])->whereNull('horodatageFin')->first();
-        if (!is_null($session)) {
-            return sendError("L'utilisateur a déjà une session en cours", 400);
-        }
-
-
+        
+        
         try {
             $request->validate([
                 // On veut une date au format timestamp
@@ -40,6 +35,10 @@ class SessionController extends Controller
             return sendError($e->errors(), 400);
         }
         
+        // Si l'utilisateur a deja une session en cours, on ne peut pas en créer une autre
+        if (!is_null(session::get_user_session($request['loginUtilisateur']))) {
+            return sendError("L'utilisateur a déjà une session en cours", 400);
+        }
         // On vérifie que le timestamp est bien bon format
         if ($request['horodatageDebut'] < 0  || strlen($request['horodatageDebut']) != 10){
             return sendError("horodatageDebut doit être un timestamp valide", 400);
