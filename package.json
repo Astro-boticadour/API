@@ -1,0 +1,19 @@
+{
+  "name": "astro-api",
+  "version": "1.0.0",
+  "description": "API de l'application Astro",
+  "main": "index.js",
+  "repository": "git@github.com:Astro-boticadour/API.git",
+  "author": "noenic <nic.dargazanli@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "dev": "nodemon src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.3"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.12"
+  }
+}
