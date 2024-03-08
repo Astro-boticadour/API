@@ -1,5 +1,5 @@
 const sequelize = require('sequelize');
-const formatSequelizeResponse = require('../utils');
+const {formatSequelizeResponse} = require('../utils');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -134,30 +134,30 @@ module.exports = async (app) => {
             return false;
         }
     
-        static async isTokenValid(token) {
-            // On verifie que le token est valide (c'est asynchrone)
-            async function isTokenValid(token, app) {
-                const secret = app.get('config')['jwt']['secret'];
+        static async isAuthentified(AuthorizationHeader) {
+            // We check if the Authorization header is a Bearer token and if its valid
+            if (AuthorizationHeader && AuthorizationHeader.startsWith('Bearer ')) {
                 try {
-                    // On verifie que le token est valide
+                    let token = AuthorizationHeader.slice(7);
+                    const secret = app.get('config')['jwt']['secret'];
                     jwt.verify(token, secret);
                     return true;
                 }
                 catch (error) {
                     return false;
                 }
-
             }
-            
-            // On attend le résultat
-            let result = await isTokenValid(token, app);
-            return result;
-    
+            else if (AuthorizationHeader && AuthorizationHeader.startsWith('Basic ')) {
+                // We check if the Authorization header is a Basic auth and if its valid
+                let credentials = Buffer.from(AuthorizationHeader.slice(6), 'base64').toString();
+                let [login, password] = credentials.split(':');
+                return await this.isPasswordValid(login, password);
+            }
+
+            else {
+                return false;
+            }
         }
-
-
-
-
     }
 
     // We create or update the table in the database
@@ -166,7 +166,6 @@ module.exports = async (app) => {
         // alter true will update the table if it already exists 
         // await Admin.model.sync({ force: true });
         await Admin.model.sync({alter: true});
-        console.log('table creation/update [admin] : \x1b[32m%s\x1b[0m', 'OK')
         // If there is no admin, we create a default one
         let admin = await Admin.readAll();
         if (admin.result.length === 0) {
@@ -179,6 +178,7 @@ module.exports = async (app) => {
                 process.exit(1);
             }
         }
+        console.log('table creation/update [admin] : \x1b[32m%s\x1b[0m', 'OK')
     } catch (error) {
         console.error('table creation/update [admin] : \x1b[31m%s\x1b[0m', 'KO\n> '+error);
         process.exit(1);

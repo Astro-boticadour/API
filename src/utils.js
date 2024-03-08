@@ -38,6 +38,22 @@ async function formatSequelizeResponse(response) {
 }
 
 
+function formatHTTPResponse(response,status="success"){
+  if (status === "error") {
+    return { status: status, message: response };
+  }
+  else{
+    return { status: status, result: response };
+  }
 
-module.exports = formatSequelizeResponse;
+}
+
+
+module.exports = {
+  formatSequelizeResponse,
+  formatHTTPResponse
+}
+
+
+
 

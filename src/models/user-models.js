@@ -1,5 +1,5 @@
 const sequelize = require('sequelize');
-const formatSequelizeResponse = require('../utils');
+const {formatSequelizeResponse} = require('../utils');
 
 
 module.exports = async (app) => {
