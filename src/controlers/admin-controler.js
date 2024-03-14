@@ -1,9 +1,8 @@
 const bcrypt = require('bcrypt');
-const {formatHTTPResponse} = require('../utils');
+const {formatHTTPResponse,handleWS} = require('../utils');
 
 module.exports = async (app) => {
     const Admin = app.get('Admin');
-
 
     app.post('/login', async (req, res) => {
         // If we have an Authorization header, we check if its a Bearer token or a Basic auth
@@ -15,8 +14,8 @@ module.exports = async (app) => {
         }
         // If the user was authenticated with a Basic auth, we generate a token for him
         if (isAuthentified && authorization.startsWith('Basic ')){
-            let token = await Admin.generateToken(authorization);
-            res.status(200).send(formatHTTPResponse(token,'success'));
+            let token = await Admin.generateJWTToken(authorization);
+            res.status(200).send(formatHTTPResponse({"token":token},'success'));
         }
 
         // If the user was not authenticated, but the Authorization header is present, we tell him that the credentials are invalid

@@ -1,14 +1,19 @@
 module.exports = async (app) => {
-  console.log('config')
   app.set('config',
   {
+    app : {
+      port: 3000
+    },
+
+    
     database : {
       db_name: 'astro',
       username: 'root',
       password: 'notSecureChangeMe',
       options: {
         host: '192.168.0.202',
-        dialect: 'mysql' 
+        dialect: 'mysql',
+        logging: false
       }
     },
     jwt :{

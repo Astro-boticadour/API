@@ -1,0 +1,24 @@
+meta {
+  name: CreateNewUser
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{Base_URL}}/users
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "login" : "login1",
+    "firstName": "login1",
+    "lastName" : "login1",
+    "pole" : "robot"
+  }
+}

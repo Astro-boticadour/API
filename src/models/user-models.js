@@ -1,5 +1,5 @@
 const sequelize = require('sequelize');
-const {formatSequelizeResponse} = require('../utils');
+const {formatSequelizeResponse,show_check} = require('../utils');
 
 
 module.exports = async (app) => {
@@ -110,9 +110,9 @@ module.exports = async (app) => {
         // alter true will update the table if it already exists 
         // await User.model.sync({ force: true });
         await User.model.sync({alter: true});
-        console.log('table creation/update [user] : \x1b[32m%s\x1b[0m', 'OK')
+        show_check('Table creation/update [user]','OK');
     } catch (error) {
-        console.error('table creation/update [user] : \x1b[31m%s\x1b[0m', 'KO\n> '+error);
+        show_check('Table creation/update [user]','KO',error);
         process.exit(1);
     }
 

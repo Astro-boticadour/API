@@ -1,5 +1,5 @@
 const sequelize = require('sequelize');
-const {formatSequelizeResponse} = require('../utils');
+const {formatSequelizeResponse,show_check, show_log} = require('../utils');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -117,7 +117,8 @@ module.exports = async (app) => {
                 }, secret);
     
             } catch (errorOnPayload) {
-                console.error('Error on payload generation: ', errorOnPayload);
+                show_log('ERROR','Error on payload generation: ', errorOnPayload);
+
             }
             return token;
         }
@@ -169,18 +170,18 @@ module.exports = async (app) => {
         // If there is no admin, we create a default one
         let admin = await Admin.readAll();
         if (admin.result.length === 0) {
-            let result = await Admin.create(app.get('config')['admin']['login'], bcrypt.hashSync(app.get('config')['admin']['password'], 10));
+            let result = await Admin.create(app.get('config').admin.login, bcrypt.hashSync(app.get('config')['admin']['password'], 10));
             if (result.status == "success") {
-                console.log('Default admin creation : \x1b[32m%s\x1b[0m', 'OK')
+                show_check('Default admin creation','OK');
             }
             else{
-                console.error('Default admin creation : \x1b[31m%s\x1b[0m', 'KO\n> '+result.result);
+                show_check('Default admin creation','KO');
                 process.exit(1);
             }
         }
-        console.log('table creation/update [admin] : \x1b[32m%s\x1b[0m', 'OK')
+        show_check('table creation/update [admin]','OK');
     } catch (error) {
-        console.error('table creation/update [admin] : \x1b[31m%s\x1b[0m', 'KO\n> '+error);
+        show_check('table creation/update [admin]','KO',error);
         process.exit(1);
     }
 
