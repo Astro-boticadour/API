@@ -53,17 +53,18 @@ function formatWSResponse(reason,data){
 
 
 async function handleWS(name,app, ws, req) {
-  console.log(`[${name}] WebSocket was opened by ${req.connection.remoteAddress}`);
+  show_log('info',`[${name}] WebSocket was opened by ${req.connection.remoteAddress}`,"app");
   app.on(name, (reason,data,req) => {
       ws.send(JSON.stringify(formatWSResponse(reason,data)));
   });
 
   ws.on('close', function() {
-      console.log(`[${name}] WebSocket was closed by ${req.connection.remoteAddress}`);
+      show_log('info',`[${name}] WebSocket was closed by ${req.connection.remoteAddress}`,"app");
   });
 
   ws.on('error', function(err) {
       console.error(`[${name}] WebSocket from ${req.connection.remoteAddress} encountered error: ${err}`);
+      show_log('error',`[${name}] WebSocket from ${req.connection.remoteAddress} encountered error: ${err}`,"app");
   });
 }
 
@@ -141,9 +142,9 @@ module.exports = {
 
 
 
-show_check('TESTING show_check', 'OK');
-show_check('TESTING show_check', 'KO');
-show_log('log','TESTING show_log',"test");
-show_log('info','TESTING show_log',"test");
-show_log('warn','TESTING show_log',"test");
-show_log('error','TESTING show_log',"test", "error message");
+// show_check('TESTING show_check', 'OK');
+// show_check('TESTING show_check', 'KO');
+// show_log('log','TESTING show_log',"test");
+// show_log('info','TESTING show_log',"test");
+// show_log('warn','TESTING show_log',"test");
+// show_log('error','TESTING show_log',"test", "error message");

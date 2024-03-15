@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const {formatHTTPResponse,handleWS} = require('../utils');
+const {sendResponse} = require('../utils');
 
 module.exports = async (app) => {
     const Admin = app.get('Admin');
@@ -10,21 +10,21 @@ module.exports = async (app) => {
         let isAuthentified= await Admin.isAuthentified(authorization);
         // If the user was authenticated with a token, we tell him that the token is valid
         if (isAuthentified && authorization.startsWith('Bearer ')){
-            res.status(200).send(formatHTTPResponse('Token is valid','success'));
+            sendResponse(res, 'Token is valid', 200);
         }
         // If the user was authenticated with a Basic auth, we generate a token for him
         if (isAuthentified && authorization.startsWith('Basic ')){
             let token = await Admin.generateJWTToken(authorization);
-            res.status(200).send(formatHTTPResponse({"token":token},'success'));
+            sendResponse(res, {"token":token}, 200);
         }
 
         // If the user was not authenticated, but the Authorization header is present, we tell him that the credentials are invalid
         if (!isAuthentified && authorization){
-            res.status(401).send(formatHTTPResponse('Invalid credentials','error'));
+            sendResponse(res, 'Invalid credentials', 401);
         }
         // If the Authorization header is not present, we tell the user that he needs to authenticate
         if (!authorization){
-            res.status(401).send(formatHTTPResponse('Must authenticate with Basic or Bearer','error'));
+            sendResponse(res, 'Must authenticate with Basic or Bearer', 401);
         }
     }
     );

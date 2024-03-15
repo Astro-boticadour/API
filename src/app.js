@@ -14,22 +14,21 @@ const Utils = require('./utils');
 module.exports = async function start(){
   const app = express();
   app.use(express.json());
+  require('express-ws')(app);
 
 
   // Error handling in json
   app.use((err, req, res, next) => {
     if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
-      res.status(400).send({status: 'error', message: 'Invalid JSON'});
+      Utils.sendResponse(res, 'Invalid JSON', 400);
     } else {
       next();
     }
   });
 
+
   // We don't want to expose the fact that we are using Express
   app.disable('x-powered-by');
-
-  const ws=require('express-ws')(app);
-  app.set('ws',ws);
   
 
 
@@ -40,11 +39,6 @@ module.exports = async function start(){
   await User_Controler(app);
   await Admin_Controler(app);
 
-  // Définir une route pour la racine de l'URL
-  app.get('/', (req, res) => {
-    res.send('Hello, World!'); // Répondre avec le message "Hello, World!"
-    
-  });
 
 
   const port = app.get('config').app.port;
