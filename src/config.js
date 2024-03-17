@@ -2,29 +2,29 @@ module.exports = async (app) => {
   app.set('config',
   {
     app : {
-      port: 3000
+      port: process.env.PORT || 3000,
     },
 
     
     database : {
-      db_name: 'astro',
-      username: 'root',
-      password: 'notSecureChangeMe',
+      db_name: process.env.DB_NAME || 'astro',
+      username: process.env.DB_USER || 'root',
+      password: process.env.DB_PASS || 'notSecureChangeMe',
       options: {
-        host: '192.168.0.202',
+        host: process.env.DB_HOST || '192.168.0.202',
         dialect: 'mysql',
-        logging: false
+        logging: process.env.DB_LOGGING || false,
       }
     },
     jwt :{
       iss : 'Astro',
-      secret : 'notSecureChangeMe',
-      duration : 3600
+      secret : process.env.JWT_SECRET || 'secret',
+      duration : Number(process.env.JWT_DURATION) || 3600
     },
 
     admin : {
-      login: 'admin',
-      password: 'admin'
+      login: process.env.ADMIN_LOGIN || 'admin',
+      password: process.env.ADMIN_PASSWORD || 'admin',
     }
 
 })  

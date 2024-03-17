@@ -2,7 +2,14 @@ const bcrypt = require('bcrypt');
 const {sendResponse} = require('../utils');
 
 module.exports = async (app) => {
-    const Admin = app.get('Admin');
+    const Admin = app.get("Admin");
+    app.use('/login', async (req, res, next) => {
+        if (['GET','PUT', 'PATCH', 'DELETE'].includes(req.method)) {
+            sendResponse(res, 'Method not allowed', 405);
+            return;
+        }
+        next();
+    });
 
     app.post('/login', async (req, res) => {
         // If we have an Authorization header, we check if its a Bearer token or a Basic auth

@@ -1,13 +1,25 @@
 // Importer le module Express
 const express = require('express');
+const Database = require('./database');
+const Config = require('./config');
+const Utils = require('./utils');
 
 const User = require('./models/user-models');
 const Admin = require('./models/admin-model');
-const Database = require('./database');
-const Config = require('./config');
+const Project = require('./models/project-model');
+const Ressource = require('./models/ressource-model');
+const Session = require('./models/session-model');
+
 const User_Controler = require('./controlers/user-controler');
 const Admin_Controler = require('./controlers/admin-controler');
-const Utils = require('./utils');
+const Project_Controler = require('./controlers/project-controler');
+const Ressource_Controler = require('./controlers/ressource-controler');
+const Session_Controler = require('./controlers/session-controler');
+const fs = require('fs');
+const path = require('path');
+
+
+
 
 
 // Créer une instance de l'application Express
@@ -34,12 +46,19 @@ module.exports = async function start(){
 
   await Config(app);
   await Database(app);
+
   await User(app);
   await Admin(app);
+  await Project(app);
+  await Ressource(app);
+  await Session(app);
+
+
   await User_Controler(app);
   await Admin_Controler(app);
-
-
+  await Project_Controler(app);
+  await Ressource_Controler(app);
+  await Session_Controler(app);
 
   const port = app.get('config').app.port;
 
@@ -47,4 +66,5 @@ module.exports = async function start(){
   app.listen(port,() => {
     Utils.show_log("info",`Server is running on port ${port}`,"app");
   });
+  return app;
 }

@@ -1,5 +1,5 @@
 const {handleWS,show_log,sendResponse} = require('../utils');
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 
 module.exports = async (app) => {
     const User = app.get('User');
@@ -10,12 +10,16 @@ module.exports = async (app) => {
     // We use a middleware to require authentication for the /users endpoint
     app.use('/users', async (req, res, next) => {
         // for the /users endpoint, we want to require authentication for the following methods
-        if (req.method === 'POST' || req.method === 'PUT' || req.method === 'DELETE') {
+        if ([ 'POST', 'PATCH', 'DELETE'].includes(req.method)) {
             let isAuthentified = await Admin.isAuthentified(req.headers.authorization);
             if(!isAuthentified){
                 sendResponse(res, 'Invalid token', 401);
                 return;
             }
+        }
+        if ([ 'PUT' ].includes(req.method)) {
+            sendResponse(res, 'Method not allowed', 405);
+            return;
         }
         next();
     });

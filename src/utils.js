@@ -2,6 +2,7 @@ async function formatSequelizeResponse(response) {
   // console.log(response);
   
   if (response instanceof Error) {
+    show_log('error',response,"sequelize,formatSequelizeResponse",response);
     response= {
       status: 'error',
       result: response.name
@@ -92,13 +93,15 @@ function show_log(level="log",message,context="general",error=null){
   }
   // Exemple [LOG-general] message
   if (error) {
-    console.error(`${color}[${level.toUpperCase()}-${context}] \x1b[0m${message}\n> \x1b[31m${error}\x1b[0m`);
+    console.error(`${color}[${level.toUpperCase()}-${context}] \x1b[0m${message}`);
+    console.error(`> \x1b[31m${error}\x1b[0m`);    
   }
   else{
     console.log(`${color}[${level.toUpperCase()}-${context}] \x1b[0m${message}`);
   }
-
 }
+
+
 function show_check(message, state, error = null) {
   let color;
   if (state === "OK") {
@@ -107,7 +110,10 @@ function show_check(message, state, error = null) {
     color = "\x1b[31m"; // red
   }
   
-  console.log(`\x1b[34m[CHECK] \x1b[36m${message} : ${color}${state}\x1b[0m${error ? `\n> \x1b[31m${error}\x1b[0m` : ''}`);
+  console.log(`\x1b[34m[CHECK] \x1b[36m${message} : ${color}${state}\x1b[0m`);
+  if (error) {
+    console.error(`> \x1b[31m${error.stack}\x1b[0m`);
+  }
 }
 
 
