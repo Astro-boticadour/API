@@ -1,0 +1,24 @@
+meta {
+  name: UpdateRessource
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{Base_URL}}/ressources/1
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+      "name": "rosbette",
+      "type": "rosbot",
+      "model": "etk800s",
+      "isUsed": true
+    }
+}

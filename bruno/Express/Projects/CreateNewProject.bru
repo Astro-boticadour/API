@@ -1,0 +1,24 @@
+meta {
+  name: CreateNewProject
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{Base_URL}}/projects
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name" : "Projet Airbus",
+    "dateDebut" : "2025-11-02",
+    "dateFin" : "2026-12-02",
+    "description" : "Une description"
+  }
+}

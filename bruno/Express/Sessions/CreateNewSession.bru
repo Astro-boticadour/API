@@ -1,0 +1,24 @@
+meta {
+  name: CreateNewSession
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{Base_URL}}/sessions
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "startTime" : "2024-05-12 15:26:25",
+    "loginUser" : "login12",
+    "idProject" : 10
+  
+  }
+}

@@ -1,0 +1,24 @@
+meta {
+  name: UpdateSession
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{Base_URL}}/sessions/8
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "startTime" : "2024-05-12 15:27:25",
+    "endTime": "2024-05-12 18:45:12",
+    "loginUser" : "login12",
+    "idProject" : 9
+  }
+}

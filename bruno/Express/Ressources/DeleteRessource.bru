@@ -1,0 +1,15 @@
+meta {
+  name: DeleteRessource
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{Base_URL}}/ressources/1
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}

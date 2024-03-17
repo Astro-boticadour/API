@@ -1,0 +1,23 @@
+meta {
+  name: CreateNewRessource
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{Base_URL}}/ressources
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name" : "sully",
+    "model" : "etk800",
+    "type" : "robot"
+  }
+}
