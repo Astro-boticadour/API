@@ -143,8 +143,7 @@ class TestRessourcesRoutes(unittest.TestCase):
         self.assertEqual(res.json()['status'], 'success')
         self.assertEqual(res.json()['result']['id'], test_id)
         time.sleep(0.2)
-        # self.assertEqual(self.ws.latest_message['reason'], 'deleted')
-        self.assertEqual(self.ws.latest_message['reason'], 'TESTING ERROR')
+        self.assertEqual(self.ws.latest_message['reason'], 'deleted')
         self.assertEqual(self.ws.latest_message['data']['id'], test_id)
         self.ws.latest_message = None
 
