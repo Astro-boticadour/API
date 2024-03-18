@@ -115,20 +115,28 @@ class TestUserRoutes(unittest.TestCase):
 
         self.ws.latest_message==None
 
-    def test_05_get_specific_user(self):
+    def test_05_create_user_with_existing_login(self):
+        ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
+        # Testez l'accès authentifié au point de terminaison POST /users
+        res = requests.post(BASE_URL + '/users', headers={'Authorization': ADMIN_AUTH_HEADER}, json=self.current_test_data)
+        self.assertEqual(res.status_code, 409)
+        self.assertEqual(res.json()['status'], 'error')
+        self.assertEqual(res.json()['message'], 'User already exists')
+    
+    def test_06_get_specific_user(self):
         # Testez l'accès authentifié au point de terminaison GET /users/testuser
         res = requests.get(BASE_URL + '/users/testuser')
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.json()['status'], 'success')
         self.assertEqual(res.json()['result']['login'], 'testuser')
 
-    def test_06_get_specific_user_not_found(self):
+    def test_07_get_specific_user_not_found(self):
         res = requests.get(BASE_URL + '/users/testusernotfound')
         self.assertEqual(res.status_code, 404)
         self.assertEqual(res.json()['status'], 'error')
         self.assertEqual(res.json()['message'], 'User not found')
 
-    def test_07_get_all_users(self):
+    def test_08_get_all_users(self):
         # Testez l'accès authentifié au point de terminaison GET /users
         res = requests.get(BASE_URL + '/users')
         self.assertEqual(res.status_code, 200)
@@ -136,7 +144,7 @@ class TestUserRoutes(unittest.TestCase):
         self.assertTrue(type(res.json()['result']) == list)
         self.assertTrue(len(res.json()['result']) > 0)
 
-    def test_08_authenticated_access_to_patch_endpoint_user_not_found(self):
+    def test_09_authenticated_access_to_patch_endpoint_user_not_found(self):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
         # Testez l'accès authentifié au point de terminaison PATCH /users
         res = requests.patch(BASE_URL + '/users/testusernotfound', headers={'Authorization': ADMIN_AUTH_HEADER}, json={
@@ -146,7 +154,7 @@ class TestUserRoutes(unittest.TestCase):
         self.assertEqual(res.json()['status'], 'error')
         self.assertEqual(res.json()['message'], 'User not found')
 
-    def test_09_authenticated_access_to_patch_endpoint(self):
+    def test_10_authenticated_access_to_patch_endpoint(self):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
         # Testez l'accès authentifié au point de terminaison PATCH /users
         res = requests.patch(BASE_URL + '/users/testuser', headers={'Authorization': ADMIN_AUTH_HEADER}, json={
@@ -161,7 +169,7 @@ class TestUserRoutes(unittest.TestCase):
         self.assertEqual(self.ws.latest_message['data']['firstName'], 'TestUpdated')
         self.ws.latest_message==None
 
-    def test_10_authenticated_access_to_patch_endpoint_with_extra_fields(self):
+    def test_11_authenticated_access_to_patch_endpoint_with_extra_fields(self):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
         # Testez l'accès authentifié au point de terminaison PATCH /users
         res = requests.patch(BASE_URL + '/users/testuser', headers={'Authorization': ADMIN_AUTH_HEADER}, json={
@@ -171,7 +179,7 @@ class TestUserRoutes(unittest.TestCase):
         self.assertEqual(res.json()['status'], 'error')
         self.assertEqual(res.json()['message'], '\"extra\" is not allowed')
     
-    def test_11_authenticated_access_to_patch_endpoint_with_invalid_data(self):
+    def test_12_authenticated_access_to_patch_endpoint_with_invalid_data(self):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
         # Testez l'accès authentifié au point de terminaison PATCH /users
         res = requests.patch(BASE_URL + '/users/testuser', headers={'Authorization': ADMIN_AUTH_HEADER}, json={
@@ -181,7 +189,7 @@ class TestUserRoutes(unittest.TestCase):
         self.assertEqual(res.json()['status'], 'error')
         self.assertEqual(res.json()['message'], '\"firstName\" must be a string')
 
-    def test_12_authenticated_access_to_delete_endpoint(self):
+    def test_13_authenticated_access_to_delete_endpoint(self):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
         # Testez l'accès authentifié au point de terminaison DELETE /users
         res = requests.delete(BASE_URL + '/users/testuser', headers={'Authorization': ADMIN_AUTH_HEADER})
@@ -193,7 +201,7 @@ class TestUserRoutes(unittest.TestCase):
         self.assertEqual(self.ws.latest_message['data']['login'], 'testuser')
         self.ws.latest_message==None
 
-    def test_13_authenticated_access_to_delete_endpoint_user_not_found(self):
+    def test_14_authenticated_access_to_delete_endpoint_user_not_found(self):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
         # Testez l'accès authentifié au point de terminaison DELETE /users
         res = requests.delete(BASE_URL + '/users/testuser', headers={'Authorization': ADMIN_AUTH_HEADER})
