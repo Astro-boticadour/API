@@ -10,7 +10,8 @@
   "scripts": {
     "dev": "nodemon --ignore 'tests/*' src/bin.js",
     "test": "python3 tests/tests.py",
-    "start": "node src/bin.js"
+    "start": "node src/bin.js",
+    "coverage": "./node_modules/.bin/nyc node src/bin.js"
   },
   "dependencies": {
     "@hapi/joi": "^17.1.1",
