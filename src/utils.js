@@ -1,3 +1,5 @@
+const { result } = require("@hapi/joi/lib/base");
+
 async function formatSequelizeResponse(response) {
   // console.log(response);
   
@@ -9,10 +11,14 @@ async function formatSequelizeResponse(response) {
     }
   }
   else if (response instanceof Array) {
-      // console.log("is array");
+      //console.log("is array");
       response= {
         status: 'success',
         result: response.map((item) => item.dataValues)
+      } 
+      console.log(response.result,response.result==[])
+      if(response.result==[]){
+        response.result=null
       }
     }
   else if (response instanceof Object) {

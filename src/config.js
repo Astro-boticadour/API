@@ -8,13 +8,13 @@ module.exports = async (app) => {
 
     
     database : {
-      db_name: process.env.DB_NAME || 'astro',
-      username: process.env.DB_USER || 'root',
-      password: process.env.DB_PASS || 'notSecureChangeMe',
+      db_name: 'db',
+      username: 'root',
+      password: 'notSecureChangeMe',
       options: {
-        host: process.env.DB_HOST || '192.168.0.202',
-        dialect: 'mysql',
-        logging: process.env.DB_LOGGING || false,
+        host: 'localhost',
+        dialect: 'mysql' ,
+        logging : process.env.DB_LOGGING || false
       }
     },
     jwt :{

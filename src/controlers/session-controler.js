@@ -71,8 +71,9 @@ module.exports = async (app) => {
         }
 
         // We check if the User already has a session
-        const userSessions = await Session.get_user_active_sessions(req.body.loginUser);
-        if (userSessions.result.length > 0){
+        const userSession = await Session.get_user_active_sessions(req.body.loginUser);
+        console.log("t",userSession.result)
+        if (userSession.result!=[]){
             sendResponse(res, 'User already has a session', 409);
             return;
         }
@@ -148,6 +149,28 @@ module.exports = async (app) => {
         }
         }
     );
+
+    app.get('/sessions/activeSession/:login', async (req, res)=>{
+
+        if(!await checkDependencies(res, null, null, req.params.login))
+        {
+            return;
+        }
+
+        // We check if the User already has a session
+        const userSessions = await Session.get_user_active_sessions(req.params.login);
+        if (userSessions.status === "success"){
+            sendResponse(res, userSessions.result, 200);
+            return;
+        }
+        else
+        {
+            sendResponse(res, userSessions.result, 500);
+        }
+
+
+
+    });
 
     // DELETE /sessions/:id - Delete a Session
     app.delete('/sessions/:id', async (req, res) => {

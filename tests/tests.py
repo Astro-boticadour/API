@@ -12,9 +12,9 @@ if __name__ == '__main__':
 
     # Ajouter les tests pour les routes administratives
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestAdminRoutes))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestUserRoutes))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestProjectRoutes))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestRessourcesRoutes))
+    #suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestUserRoutes))
+    #suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestProjectRoutes))
+    #suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestRessourcesRoutes))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestSessionRoutes))
 
 

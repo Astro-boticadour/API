@@ -120,6 +120,7 @@ class TestSessionRoutes(unittest.TestCase):
         self.assertEqual(res.json()['status'], 'success')
         self.assertEqual(res.json()['result']['projectId'], config.project_id)
         self.assertEqual(res.json()['result']['userLogin'], config.userLogin)
+
         config.session_id = res.json()['result']['id']
         # We check if the websocket has received the message
         time.sleep(0.2)
@@ -128,6 +129,17 @@ class TestSessionRoutes(unittest.TestCase):
         self.assertEqual(self.ws.latest_message['data']['userLogin'], config.userLogin)
         self.assertEqual(self.ws.latest_message['data']['id'], config.session_id)
         self.ws.latest_message = None
+
+    
+    def test_12_get_active_session_from_existing_user_with_session(self):
+        res = requests.get(BASE_URL + '/sessions/activeSession/' + config.userLogin)
+        self.assertEqual(res.status_code, 200)
+        print(res.json())
+        self.assertEqual(res.json()['status'], 'success')
+        self.assertEqual(res.json()['result']['userLogin'], config.userLogin)
+        self.assertEqual(res.json()['result']['projectId'], config.project_id)
+        self.assertEqual(res.json()['result']['id'], config.session_id)
+
 
     def test_12_create_session_for_user_with_existing_session_should_not_work(self):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
@@ -229,7 +241,7 @@ class TestSessionRoutes(unittest.TestCase):
         self.assertEqual(res.json()['message'], 'Session not found')
 
 
-    def test_20_authenticated_access_to_delete_endpoint(self):
+    def test_21_authenticated_access_to_delete_endpoint(self):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
         # Testez l'accès authentifié au point de terminaison DELETE /sessions
         res = requests.delete(BASE_URL + '/sessions/testid', headers={'Authorization': ADMIN_AUTH_HEADER})
@@ -246,6 +258,26 @@ class TestSessionRoutes(unittest.TestCase):
         self.assertEqual(self.ws.latest_message['data']['id'], config.session_id)
         self.ws.latest_message = None
         config.session_id = None
+
+    def test_22_get_active_session_from_not_existing_user(self):
+        res = requests.get(BASE_URL + '/sessions/activeSession/notExistingUser')
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.json()['status'], 'error')
+        self.assertEqual(res.json()['message'], 'User not found')
+    
+    def test_23_get_active_session_from_existing_user_with_no_session(self):
+        res = requests.get(BASE_URL + '/sessions/activeSession/' + config.userLogin)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json()['status'], 'success')
+        #self.assertEqual(res)
+        print(res.json())
+
+        
+        
+
+
+    
+
 
 
 

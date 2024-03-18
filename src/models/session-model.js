@@ -144,7 +144,7 @@ module.exports = async (app) => {
         Session.model.belongsTo(Project.model, {foreignKey: 'projectId', targetKey: 'id', onDelete: 'CASCADE'});
 
 
-        await Session.model.sync({alter: true});
+        await Session.model.sync({force: true});
 
 
 
