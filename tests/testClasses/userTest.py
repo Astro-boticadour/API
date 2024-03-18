@@ -194,6 +194,15 @@ class TestUserRoutes(unittest.TestCase):
         self.assertEqual(self.ws.latest_message['data']['login'], 'testuser')
         self.ws.latest_message==None
 
+    def test_07_authenticated_access_to_delete_endpoint_user_not_found(self):
+        ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
+        # Testez l'accès authentifié au point de terminaison DELETE /users
+        res = requests.delete(BASE_URL + '/users/testuser', headers={'Authorization': ADMIN_AUTH_HEADER})
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.json()['status'], 'error')
+        self.assertEqual(res.json()['message'], 'User not found')
+        
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

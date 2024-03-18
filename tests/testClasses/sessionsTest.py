@@ -134,14 +134,13 @@ class TestSessionRoutes(unittest.TestCase):
     def test_12_get_active_session_from_existing_user_with_session(self):
         res = requests.get(BASE_URL + '/sessions/activeSession/' + config.userLogin)
         self.assertEqual(res.status_code, 200)
-        print(res.json())
         self.assertEqual(res.json()['status'], 'success')
         self.assertEqual(res.json()['result']['userLogin'], config.userLogin)
         self.assertEqual(res.json()['result']['projectId'], config.project_id)
         self.assertEqual(res.json()['result']['id'], config.session_id)
 
 
-    def test_12_create_session_for_user_with_existing_session_should_not_work(self):
+    def test_13_create_session_for_user_with_existing_session_should_not_work(self):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
 
         # Doing it again should return 409
@@ -154,14 +153,14 @@ class TestSessionRoutes(unittest.TestCase):
         self.assertIsNone(self.ws.latest_message)
 
 
-    def test_13_get_sessions(self):
+    def test_14_get_sessions(self):
         # Testez l'accès authentifié au point de terminaison GET /sessions
         res = requests.get(BASE_URL + '/sessions')
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.json()['status'], 'success')
         self.assertEqual(type(res.json()['result']), list)
 
-    def test_14_get_specific_session(self):
+    def test_15_get_specific_session(self):
         # Testez l'accès authentifié au point de terminaison GET /sessions/testid
         res = requests.get(BASE_URL + '/sessions/' + str(config.session_id))
         self.assertEqual(res.status_code, 200)
@@ -169,7 +168,14 @@ class TestSessionRoutes(unittest.TestCase):
         self.assertEqual(res.json()['result']['projectId'], config.project_id)
         self.assertEqual(res.json()['result']['userLogin'], config.userLogin)
 
-    def test_15_updating_else_than_endTime_is_not_allowed(self):
+    def test_15_1_get_specific_session_not_existing(self):
+        res = requests.get(BASE_URL + '/sessions/404')
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.json()['status'], 'error')
+        self.assertEqual(res.json()['message'], 'Session not found')
+    
+
+    def test_16_updating_else_than_endTime_is_not_allowed(self):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
         # startTime n'est pas autorisé à être modifié
         res = requests.patch(BASE_URL + '/sessions/' + str(config.session_id), headers={'Authorization': ADMIN_AUTH_HEADER}, json={
@@ -179,7 +185,7 @@ class TestSessionRoutes(unittest.TestCase):
         self.assertEqual(res.json()['status'], 'error')
         self.assertEqual(res.json()['message'], '"startTime" is not allowed')
     
-    def test_16_updating_with_invalid_endTime_format_should_not_work(self):
+    def test_17_updating_with_invalid_endTime_format_should_not_work(self):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
 
         # endTime doit être en format [YYYY-MM-DD HH:mm:ss]
@@ -190,7 +196,7 @@ class TestSessionRoutes(unittest.TestCase):
         self.assertEqual(res.json()['status'], 'error')
         self.assertEqual(res.json()['message'], '"endTime" must be in [YYYY-MM-DD HH:mm:ss] format')
 
-    def test_17_updating_with_endTime_less_than_startTime_should_not_work(self):
+    def test_18_updating_with_endTime_less_than_startTime_should_not_work(self):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
 
 
@@ -202,7 +208,16 @@ class TestSessionRoutes(unittest.TestCase):
         self.assertEqual(res.json()['status'], 'error')
         self.assertEqual(res.json()['message'], 'endTime must be greater than startTime')
 
-    def test_18_updating_session(self):
+    def test_18_1_updating_a_session_that_does_not_exist(self):
+        ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
+        res = requests.patch(BASE_URL + '/sessions/404', headers
+        ={'Authorization': ADMIN_AUTH_HEADER}, json={'endTime': '2021-12-12 12:12:13'})
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.json()['status'], 'error')
+        self.assertEqual(res.json()['message'], 'Session not found')
+        
+
+    def test_19_updating_session(self):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
         # On ferme la session
         res = requests.patch(BASE_URL + '/sessions/' + str(config.session_id), headers={'Authorization': ADMIN_AUTH_HEADER}, json={
@@ -222,7 +237,7 @@ class TestSessionRoutes(unittest.TestCase):
         self.assertEqual(self.ws.latest_message['data']['endTime'], '2021-12-12T15:12:13.000Z')
         self.ws.latest_message = None
 
-    def test_19_updating_closed_session_should_not_be_possible(self):
+    def test_20_updating_closed_session_should_not_be_possible(self):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
         # On ne peut pas modifier une session fermée
         res = requests.patch(BASE_URL + '/sessions/' + str(config.session_id), headers={'Authorization': ADMIN_AUTH_HEADER}, json={
@@ -232,7 +247,7 @@ class TestSessionRoutes(unittest.TestCase):
         self.assertEqual(res.json()['status'], 'error')
         self.assertEqual(res.json()['message'], 'Session is already closed')
 
-    def test_20_authenticated_access_to_delete_endpoint_with_invalid_sessionid(self):
+    def test_21_authenticated_access_to_delete_endpoint_with_invalid_sessionid(self):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
         # Testez l'accès authentifié au point de terminaison DELETE /sessions
         res = requests.delete(BASE_URL + '/sessions/404', headers={'Authorization': ADMIN_AUTH_HEADER})
@@ -241,7 +256,7 @@ class TestSessionRoutes(unittest.TestCase):
         self.assertEqual(res.json()['message'], 'Session not found')
 
 
-    def test_21_authenticated_access_to_delete_endpoint(self):
+    def test_22_authenticated_access_to_delete_endpoint(self):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
         # Testez l'accès authentifié au point de terminaison DELETE /sessions
         res = requests.delete(BASE_URL + '/sessions/testid', headers={'Authorization': ADMIN_AUTH_HEADER})
@@ -259,18 +274,19 @@ class TestSessionRoutes(unittest.TestCase):
         self.ws.latest_message = None
         config.session_id = None
 
-    def test_22_get_active_session_from_not_existing_user(self):
+    def test_23_get_active_session_from_not_existing_user(self):
         res = requests.get(BASE_URL + '/sessions/activeSession/notExistingUser')
         self.assertEqual(res.status_code, 404)
         self.assertEqual(res.json()['status'], 'error')
         self.assertEqual(res.json()['message'], 'User not found')
     
-    def test_23_get_active_session_from_existing_user_with_no_session(self):
+    def test_24_get_active_session_from_existing_user_with_no_session(self):
         res = requests.get(BASE_URL + '/sessions/activeSession/' + config.userLogin)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.json()['status'], 'success')
-        #self.assertEqual(res)
-        print(res.json())
+        self.assertEqual(res.json()['result'], None)
+    
+
 
         
         
