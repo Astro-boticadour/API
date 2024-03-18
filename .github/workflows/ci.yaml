@@ -46,7 +46,7 @@ jobs:
 
     - name: Start application and run tests
       run: |
-        nohup yarn start & sleep 2 && yarn test
+        yarn run-ci
 
     - name: Stop MySQL container
       run: docker stop mysql

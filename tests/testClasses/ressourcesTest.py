@@ -100,8 +100,7 @@ class TestRessourcesRoutes(unittest.TestCase):
         self.assertEqual(type(res.json()['result']), list)
         self.assertGreater(len(res.json()['result']), 0)
         
-
-    def test_05_get_specific_ressource(self):
+    def test_06_get_specific_ressource(self):
         # Testez l'accès authentifié au point de terminaison GET /ressources/testid
         res = requests.get(BASE_URL + '/ressources/testid')
         self.assertEqual(res.status_code, 404)  # Ressource not found, expected 404 status code
@@ -114,14 +113,14 @@ class TestRessourcesRoutes(unittest.TestCase):
         self.assertEqual(res.json()['result']['type'], 'Test Type')
         self.assertEqual(res.json()['result']['isUsed'], False)
 
-    def test_06_get_specific_ressource_not_found(self):
+    def test_07_get_specific_ressource_not_found(self):
         # Testez l'accès authentifié au point de terminaison GET /ressources/testid
         res = requests.get(BASE_URL + '/ressources/testid')
         self.assertEqual(res.status_code, 404)
         self.assertEqual(res.json()['status'], 'error')
         self.assertEqual(res.json()['message'], 'Ressource not found')
 
-    def test_06_authenticated_access_to_patch_endpoint_not_found(self):
+    def test_08_authenticated_access_to_patch_endpoint_not_found(self):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
         # Testez l'accès authentifié au point de terminaison PATCH /ressources
         res = requests.patch(BASE_URL + '/ressources/testid', headers={'Authorization': ADMIN_AUTH_HEADER}, json={
@@ -129,7 +128,7 @@ class TestRessourcesRoutes(unittest.TestCase):
         })
         self.assertEqual(res.status_code, 404)  # Ressource not found, expected 404 status code
 
-    def test_06_authenticated_access_to_patch_endpoint(self):
+    def test_09_authenticated_access_to_patch_endpoint(self):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
         res = requests.patch(BASE_URL + f'/ressources/{test_id}', headers={'Authorization': ADMIN_AUTH_HEADER}, json={
             'name': 'Updated Test Ressource'
@@ -148,7 +147,7 @@ class TestRessourcesRoutes(unittest.TestCase):
         self.assertEqual(self.ws.latest_message['data']['isUsed'], False)
         self.ws.latest_message = None
     
-    def test_07_authenticated_access_to_patch_endpoint_with_invalid_data(self):
+    def test_10_authenticated_access_to_patch_endpoint_with_invalid_data(self):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
         # Testez l'accès authentifié au point de terminaison PATCH /ressources
         res = requests.patch(BASE_URL + f'/ressources/{test_id}', headers={'Authorization': ADMIN_AUTH_HEADER}, json={
@@ -158,9 +157,7 @@ class TestRessourcesRoutes(unittest.TestCase):
         self.assertEqual(res.json()['status'], 'error')
         self.assertEqual(res.json()['message'], '"isUsed" must be a boolean')
 
-
-
-    def test_07_authenticated_access_to_delete_endpoint(self):
+    def test_11_authenticated_access_to_delete_endpoint(self):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
         # Testez l'accès authentifié au point de terminaison DELETE /ressources
         res = requests.delete(BASE_URL + '/ressources/testid', headers={'Authorization': ADMIN_AUTH_HEADER})

@@ -100,9 +100,6 @@ class TestProjectRoutes(unittest.TestCase):
         self.assertEqual(res.json()['status'], 'error')
         self.assertEqual(res.json()['message'], 'dateFin must be after dateDebut')
 
-
-
-
     def test_06_create_project(self):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
         # Testez l'accès authentifié au point de terminaison POST /projects
@@ -113,7 +110,6 @@ class TestProjectRoutes(unittest.TestCase):
         global test_id
         test_id = str(res.json()['result']['id'])
 
-    
     def test_07_get_all_projects(self):
         # Testez l'accès authentifié au point de terminaison GET /projects
         res = requests.get(BASE_URL + '/projects')
@@ -121,8 +117,6 @@ class TestProjectRoutes(unittest.TestCase):
         self.assertEqual(res.json()['status'], 'success')
         self.assertEqual(type(res.json()['result']), list)
         self.assertTrue(len(res.json()['result']) > 0)
-
-
 
     def test_08_get_specific_project(self):
         # Testez l'accès authentifié au point de terminaison GET /projects/testid
@@ -140,7 +134,6 @@ class TestProjectRoutes(unittest.TestCase):
         self.assertEqual(res.status_code, 404)
         self.assertEqual(res.json()['status'], 'error')
         self.assertEqual(res.json()['message'], 'Project not found')
-
 
     def test_10_authenticated_access_to_patch_endpoint(self):
         global test_id
@@ -174,7 +167,6 @@ class TestProjectRoutes(unittest.TestCase):
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res.json()['status'], 'error')
         self.assertEqual(res.json()['message'], 'dateFin must be after dateDebut')
-
 
     def test_13_authenticated_access_to_delete_endpoint(self):
         global test_id
