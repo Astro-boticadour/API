@@ -46,7 +46,7 @@ jobs:
 
     - name: Start application and run tests
       run: |
-        yarn coverage &  > /dev/tty
+        yarn coverage & 
         sleep 5
         yarn test
         wait $!
