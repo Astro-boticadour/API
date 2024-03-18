@@ -113,9 +113,18 @@ class TestProjectRoutes(unittest.TestCase):
         global test_id
         test_id = str(res.json()['result']['id'])
 
+    
+    def test_07_get_all_projects(self):
+        # Testez l'accès authentifié au point de terminaison GET /projects
+        res = requests.get(BASE_URL + '/projects')
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json()['status'], 'success')
+        self.assertEqual(type(res.json()['result']), list)
+        self.assertTrue(len(res.json()['result']) > 0)
 
 
-    def test_07_get_specific_project(self):
+
+    def test_08_get_specific_project(self):
         # Testez l'accès authentifié au point de terminaison GET /projects/testid
         global test_id
 
@@ -125,8 +134,15 @@ class TestProjectRoutes(unittest.TestCase):
         self.assertEqual(res.json()['result']['name'], 'Test Project')
         self.assertEqual(res.json()['result']['id'], int(test_id))
 
+    def test_09_get_specific_project_not_found(self):
+        # Testez l'accès authentifié au point de terminaison GET /projects/testid
+        res = requests.get(BASE_URL + '/projects/testid')
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.json()['status'], 'error')
+        self.assertEqual(res.json()['message'], 'Project not found')
 
-    def test_08_authenticated_access_to_patch_endpoint(self):
+
+    def test_10_authenticated_access_to_patch_endpoint(self):
         global test_id
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
         # Testez l'accès authentifié au point de terminaison PATCH /projects
@@ -138,8 +154,29 @@ class TestProjectRoutes(unittest.TestCase):
         self.assertEqual(res.json()['result']['name'], 'Updated Test Project')
         self.assertEqual(res.json()['result']['id'], int(test_id))
 
+    def test_11_authenticated_access_to_patch_endpoint_not_found(self):
+        ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
+        # Testez l'accès authentifié au point de terminaison PATCH /projects
+        res = requests.patch(BASE_URL + '/projects/testid', headers={'Authorization': ADMIN_AUTH_HEADER}, json={
+            'name': 'Updated Test Project'
+        })
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.json()['status'], 'error')
+        self.assertEqual(res.json()['message'], 'Project not found')
+    
+    def test_12_authenticated_access_to_patch_endpoint_with_invalid_date(self):
+        ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
+        # Testez l'accès authentifié au point de terminaison PATCH /projects
+        res = requests.patch(BASE_URL + '/projects/'+test_id, headers={'Authorization': ADMIN_AUTH_HEADER}, json={
+            'dateDebut': '2024-03-24',
+            'dateFin': '2024-03-17'
+        })
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res.json()['status'], 'error')
+        self.assertEqual(res.json()['message'], 'dateFin must be after dateDebut')
 
-    def test_09_authenticated_access_to_delete_endpoint(self):
+
+    def test_13_authenticated_access_to_delete_endpoint(self):
         global test_id
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
         # Testez l'accès authentifié au point de terminaison DELETE /projects
@@ -147,6 +184,15 @@ class TestProjectRoutes(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.json()['status'], 'success')
         self.assertEqual(res.json()['result']['id'], int(test_id))
+
+    def test_14_authenticated_access_to_delete_endpoint_not_found(self):
+        ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
+        # Testez l'accès authentifié au point de terminaison DELETE /projects
+        res = requests.delete(BASE_URL + '/projects/testid', headers={'Authorization': ADMIN_AUTH_HEADER})
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.json()['status'], 'error')
+        self.assertEqual(res.json()['message'], 'Project not found')
+    
 
 
 if __name__ == '__main__':

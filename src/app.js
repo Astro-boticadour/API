@@ -38,6 +38,15 @@ module.exports = async function start(){
     }
   });
 
+  if (app.get('config').app.env === 'development'){
+    app.post('/shutdown', (req, res) => {
+      Utils.show_log("info", "Shutting down the server", "app");
+      res.send("Server is shutting down");
+      setTimeout(() => {
+        process.exit(0);
+      }, 1000);
+    });
+  }
 
   // We don't want to expose the fact that we are using Express
   app.disable('x-powered-by');

@@ -44,6 +44,14 @@ class TestAdminRoutes(unittest.TestCase):
         self.assertEqual(res.json()['status'], 'success')
         self.assertTrue('token' in res.json()['result'])
         config.adminToken = res.json()['result']['token']
+    
+    def test_05_check_admin_token_is_valid(self):
+        res = requests.post(BASE_URL + '/login', headers
+        ={"Authorization": 'Bearer ' + config.adminToken})
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json()['status'], 'success')
+        self.assertEqual(res.json()['result'], 'Token is valid')
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

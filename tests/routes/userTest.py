@@ -123,6 +123,29 @@ class TestUserRoutes(unittest.TestCase):
         self.assertEqual(res.json()['status'], 'success')
         self.assertEqual(res.json()['result']['login'], 'testuser')
 
+    def test_06_get_specific_user_not_found(self):
+        res = requests.get(BASE_URL + '/users/testusernotfound')
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.json()['status'], 'error')
+        self.assertEqual(res.json()['message'], 'User not found')
+
+    def test_06_get_all_users(self):
+        # Testez l'accès authentifié au point de terminaison GET /users
+        res = requests.get(BASE_URL + '/users')
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json()['status'], 'success')
+        self.assertTrue(type(res.json()['result']) == list)
+        self.assertTrue(len(res.json()['result']) > 0)
+
+    def test_06_authenticated_access_to_patch_endpoint_user_not_found(self):
+        ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
+        # Testez l'accès authentifié au point de terminaison PATCH /users
+        res = requests.patch(BASE_URL + '/users/testusernotfound', headers={'Authorization': ADMIN_AUTH_HEADER}, json={
+            'firstName': 'TestUpdated'
+        })
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.json()['status'], 'error')
+        self.assertEqual(res.json()['message'], 'User not found')
 
     def test_06_authenticated_access_to_patch_endpoint(self):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
@@ -138,6 +161,26 @@ class TestUserRoutes(unittest.TestCase):
         self.assertEqual(self.ws.latest_message['data']['login'], 'testuser')
         self.assertEqual(self.ws.latest_message['data']['firstName'], 'TestUpdated')
         self.ws.latest_message==None
+
+    def test_06_authenticated_access_to_patch_endpoint_with_extra_fields(self):
+        ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
+        # Testez l'accès authentifié au point de terminaison PATCH /users
+        res = requests.patch(BASE_URL + '/users/testuser', headers={'Authorization': ADMIN_AUTH_HEADER}, json={
+            'extra': 'extra'
+        })
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res.json()['status'], 'error')
+        self.assertEqual(res.json()['message'], '\"extra\" is not allowed')
+    
+    def test_07_authenticated_access_to_patch_endpoint_with_invalid_data(self):
+        ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
+        # Testez l'accès authentifié au point de terminaison PATCH /users
+        res = requests.patch(BASE_URL + '/users/testuser', headers={'Authorization': ADMIN_AUTH_HEADER}, json={
+            'firstName': 123
+        })
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res.json()['status'], 'error')
+        self.assertEqual(res.json()['message'], '\"firstName\" must be a string')
 
     def test_07_authenticated_access_to_delete_endpoint(self):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken

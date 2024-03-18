@@ -99,11 +99,6 @@ module.exports = async (app) => {
             return;
         }
 
-        if (req.body.dateFin){
-            req.body.dateFin+= "T23:59:59.999Z";
-        }
-        
-
         // If the Ressource does not exist, we send an error response
         if (!await Ressource.exists(req.params.id)){
             sendResponse(res, 'Ressource not found', 404);

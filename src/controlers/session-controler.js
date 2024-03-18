@@ -120,7 +120,7 @@ module.exports = async (app) => {
 
         let session = await Session.read(req.params.id);
         // We check if the Session is closed
-        if (session.result.endTime !== null){
+        if (await Session.is_closed(req.params.id)){
             sendResponse(res, 'Session is already closed', 409);
             return;
         }

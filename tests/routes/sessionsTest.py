@@ -220,6 +220,15 @@ class TestSessionRoutes(unittest.TestCase):
         self.assertEqual(res.json()['status'], 'error')
         self.assertEqual(res.json()['message'], 'Session is already closed')
 
+    def test_20_authenticated_access_to_delete_endpoint_with_invalid_sessionid(self):
+        ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
+        # Testez l'accès authentifié au point de terminaison DELETE /sessions
+        res = requests.delete(BASE_URL + '/sessions/404', headers={'Authorization': ADMIN_AUTH_HEADER})
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.json()['status'], 'error')
+        self.assertEqual(res.json()['message'], 'Session not found')
+
+
     def test_20_authenticated_access_to_delete_endpoint(self):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
         # Testez l'accès authentifié au point de terminaison DELETE /sessions
