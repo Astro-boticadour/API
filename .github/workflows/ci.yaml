@@ -46,7 +46,12 @@ jobs:
 
     - name: Start application and run tests
       run: |
-        yarn run-ci
+        yarn coverage &  > /dev/tty
+        sleep 5
+        yarn test
+        wait $!
+
+
 
     - name: Stop MySQL container
       run: docker stop mysql

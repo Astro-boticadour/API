@@ -11,8 +11,8 @@
     "dev": "nodemon --ignore 'tests/*' src/bin.js",
     "test": "python3 -u tests/tests.py",
     "start": "node src/bin.js",
-    "coverage": "NODE_ENV=test ./node_modules/.bin/nyc --check-coverage --statement 95 node src/bin.js",
-    "run-ci" : "yarn coverage & sleep 5 && yarn test"
+    "coverage": "NODE_ENV=test ./node_modules/.bin/nyc --check-coverage --statements 97 node src/bin.js"
+
   },
   "dependencies": {
     "@hapi/joi": "^17.1.1",
