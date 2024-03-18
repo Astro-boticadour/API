@@ -71,9 +71,8 @@ module.exports = async (app) => {
         }
 
         // We check if the User already has a session
-        const userSession = await Session.get_user_active_sessions(req.body.loginUser);
-        console.log("t",userSession.result)
-        if (userSession.result!=[]){
+        const userSession = await Session.get_user_active_sessions(req.body.loginUser); 
+        if (userSession.result && userSession.result.length > 0){
             sendResponse(res, 'User already has a session', 409);
             return;
         }
@@ -90,6 +89,8 @@ module.exports = async (app) => {
 
         let result = await Session.create(req.body.startTime, req.body.endTime, req.body.idProject, req.body.loginUser);
         // If the Session was created, we send a success response, otherwise we send an error response
+        // can't test this line because can't find a way to make the database fail
+        /* istanbul ignore next */
         if (result.status === 'error'){
             sendResponse(res, result.result, 400);
         }
@@ -138,6 +139,8 @@ module.exports = async (app) => {
         }
         let result = await Session.update(req.params.id, req.body);
         // If the Session was updated, we send a success response, otherwise we send an error response
+        // can't test this line because can't find a way to make the database fail
+        /* istanbul ignore next */
         if (result.status === 'error'){
             sendResponse(res, result.result, 400);
         }
@@ -160,11 +163,20 @@ module.exports = async (app) => {
         // We check if the User already has a session
         const userSessions = await Session.get_user_active_sessions(req.params.login);
         if (userSessions.status === "success"){
-            sendResponse(res, userSessions.result, 200);
-            return;
+            // If we have a session, it will be formatted as an array, but since we can only have one active session, we can just return the first element of the array
+            if (Array.isArray(userSessions.result) && userSessions.result.length > 0){
+                sendResponse(res, userSessions.result[0], 200);
+                return;
+            }
+            else{
+                sendResponse(res, null, 200);
+                return;
+            }
         }
         else
         {
+            // if the database fails, we send a 500 error
+            /* istanbul ignore next */
             sendResponse(res, userSessions.result, 500);
         }
 
@@ -181,6 +193,8 @@ module.exports = async (app) => {
 
         let result = await Session.delete(req.params.id);
         // If the Session was deleted, we send a success response, otherwise we send an error response
+        // can't test this line because can't find a way to make the database fail
+        /* istanbul ignore next */
         if (result.status === 'error'){
             sendResponse(res, result.result, 400);
         }

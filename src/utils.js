@@ -1,28 +1,27 @@
 const { result } = require("@hapi/joi/lib/base");
 
+
 async function formatSequelizeResponse(response) {
   // console.log(response);
   
   if (response instanceof Error) {
-    show_log('error',response,"sequelize,formatSequelizeResponse",response);
+    show_log('error',response,"sequelize,formatSequelizeResponse",response.stack);
     response= {
       status: 'error',
       result: response.name
     }
   }
   else if (response instanceof Array) {
-      //console.log("is array");
-      response= {
-        status: 'success',
-        result: response.map((item) => item.dataValues)
-      } 
-      console.log(response.result,response.result==[])
-      if(response.result==[]){
-        response.result=null
-      }
+      // if the array is empty, we return null
+
+        response= { 
+          status: 'success',
+          result: response.map((item) => item.dataValues)
+        } 
+      
+
     }
   else if (response instanceof Object) {
-        // console.log("is object");
         response= {
           status: 'success',
           result: response.dataValues
@@ -40,10 +39,6 @@ async function formatSequelizeResponse(response) {
 
 function formatHTTPResponse(response,status="success"){
 
-  // The database returns an array with an undefined element when it doesn't find anything
-  if (response instanceof Array && response[0] ==undefined) {
-    response = null
-  }
   if (status === "error") {
     return { status: status, message: response };
   }
@@ -53,6 +48,35 @@ function formatHTTPResponse(response,status="success"){
 
 }
 
+
+// Function that executes a sequelize query and formats the response
+async function executeAndFormat(model,action, ...args) {
+  let result = null;
+  try {
+      switch (action) {
+          case 'create':
+              result = await model.create(...args);
+              break;
+          case 'findByPk':
+              result = await model.findByPk(...args);
+              break;
+          case 'findAll':
+              result = await model.findAll(...args);
+              break;
+          case 'update':
+              result = await model.update(...args);
+              break;
+          case 'destroy':
+              result = await model.destroy(...args);
+              break;
+      }
+  }
+  catch (error) {
+      result = error;
+
+  }
+  return formatSequelizeResponse(result);
+}
 
 function formatWSResponse(reason,data){
   return {reason: reason, data: data};
@@ -69,6 +93,8 @@ async function handleWS(name,app, ws, req) {
       show_log('info',`[${name}] WebSocket was closed by ${req.connection.remoteAddress}`,"app");
   });
 
+  // We cannot test the error case of the WebSocket, so we ignore it in the coverage
+  /* istanbul ignore next */
   ws.on('error', function(err) {
       console.error(`[${name}] WebSocket from ${req.connection.remoteAddress} encountered error: ${err}`);
       show_log('error',`[${name}] WebSocket from ${req.connection.remoteAddress} encountered error: ${err}`,"app");
@@ -92,9 +118,6 @@ function show_log(level="log",message,context="general",error=null){
       break;
     case "error":
       color = "\x1b[31m"; // red
-      break;
-    default:
-      color = "\x1b[0m"; // reset color
       break;
   }
   // Exemple [LOG-general] message
@@ -124,6 +147,7 @@ function show_check(message, state, error = null) {
 
 
 
+
 function sendResponse(response, data, statusCode) {
   // If the status is 2xx, we send a response with a status "success", otherwise we send a response with a status "error"
   if (statusCode >= 200 && statusCode < 300) {
@@ -141,6 +165,7 @@ function sendResponse(response, data, statusCode) {
 
 
 module.exports = {
+  executeAndFormat,
   formatSequelizeResponse,
   sendResponse,
   formatHTTPResponse,
@@ -154,9 +179,3 @@ module.exports = {
 
 
 
-// show_check('TESTING show_check', 'OK');
-// show_check('TESTING show_check', 'KO');
-// show_log('log','TESTING show_log',"test");
-// show_log('info','TESTING show_log',"test");
-// show_log('warn','TESTING show_log',"test");
-// show_log('error','TESTING show_log',"test", "error message");

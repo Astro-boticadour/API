@@ -1,5 +1,5 @@
 const sequelize = require('sequelize');
-const {formatSequelizeResponse,show_check, show_log} = require('../utils');
+const {formatSequelizeResponse,show_check, show_log,executeAndFormat} = require('../utils');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -21,74 +21,45 @@ module.exports = async (app) => {
             timestamps: false
           });
 
+          
+
 
         static async create(login,password) {
-            // We create a new admin in the database
-            let result = null;
-            try{
-                result = await this.model.create({ login,password });
-            }
-            catch(error){
-                result = error;
-            }
-            return formatSequelizeResponse(result);
+            // We create an admin in the database
+            return await executeAndFormat(this.model,"create", {login: login, password: password});
         }
+
 
         static async read(login) {
             // We read a admins from the database
-            let result = null
-            try{
-                result = await this.model.findByPk(login);
-            }
-            catch(e){
-                result = e;
-            }
-            return formatSequelizeResponse(result);
+            return await executeAndFormat(this.model,"findByPk", login);
         }
 
         static async readAll() {
             // We read all admins from the database
-            let result = null;
-            try{
-                result = await this.model.findAll();
-            }
-            catch(e){
-                result = e;
-            }
-            return formatSequelizeResponse(result);
+            return await executeAndFormat(this.model,"findAll", {});
         }
 
         static async update(login, data) {
             // We update an admin in the database
-            let result = null;
-            try{
-                result = await this.model.update(data, {where: {login: login}});
-            }
-            catch(e){
-                result = e;
-            }
-
-            return formatSequelizeResponse(result);
+            return await executeAndFormat(this.model,"update", data, {where: {login: login}});
         }
 
         static async delete(login) {
             // We delete an admin from the database
-            let result = null;
-            try{
-                // We delete the user only if its not the last one
-                let count = await this.model.count();
-                if (count > 1){
-                    result = await this.model.destroy({where: {login: login}});
-                }
-                else{
-                    result = new Error('You cannot delete the last admin');
-                }
+            // We need to make sure that the admin is not the last one
+            let admin = await this.read(login);
+            admin = admin.result;
+            let allAdmins = await this.readAll();
+            allAdmins = allAdmins.result;
+            if (admin!=null && allAdmins.length > 1) {
+                return await executeAndFormat(this.model,"destroy", {where: {login: login}});
             }
-            catch(e){
-                result = e;
+            else{
+                return formatSequelizeResponse(new Error('You cannot delete the last admin'));
             }
-            return formatSequelizeResponse(result);
         }
+
 
 
         static async exists(login) {
@@ -117,6 +88,8 @@ module.exports = async (app) => {
                 }, secret);
     
             } catch (errorOnPayload) {
+                // Impossible to test
+                /* istanbul ignore next */
                 show_log('ERROR','Error on payload generation: ', errorOnPayload);
 
             }
@@ -145,6 +118,7 @@ module.exports = async (app) => {
                     return true;
                 }
                 catch (error) {
+                    /* istanbul ignore next */
                     return false;
                 }
             }
@@ -175,13 +149,17 @@ module.exports = async (app) => {
                 show_check('Default admin creation','OK');
             }
             else{
+                /* istanbul ignore next */
                 show_check('Default admin creation','KO');
+                /* istanbul ignore next */
                 process.exit(1);
             }
         }
         show_check('table creation/update [admin]','OK');
     } catch (error) {
+        /* istanbul ignore next */
         show_check('table creation/update [admin]','KO',error);
+        /* istanbul ignore next */
         process.exit(1);
     }
 

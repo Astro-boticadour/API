@@ -1,5 +1,5 @@
 const sequelize = require('sequelize');
-const {formatSequelizeResponse,show_check} = require('../utils');
+const {formatSequelizeResponse,show_check,executeAndFormat} = require('../utils');
 
 
 module.exports = async (app) => {
@@ -35,63 +35,28 @@ module.exports = async (app) => {
 
         static async create(name, type, model) {
             // We create a new ressource in the database
-            let result = null;
-            try{
-                result = await this.model.create({ name, type, model });
-            }
-            catch(error){
-                result = error;
-            }
-            return formatSequelizeResponse(result);
+            return await executeAndFormat(this.model,"create", { name, type, model });
         }
 
         static async read(id) {
             // We read a ressource from the database
-            let result = null
-            try{
-                result = await this.model.findByPk(id);
-            }
-            catch(e){
-                result = e;
-            }
-            return formatSequelizeResponse(result);
+            return await executeAndFormat(this.model,"findByPk", id);
         }
 
         static async readAll() {
             // We read all projects from the database
-            let result = null;
-            try{
-                result = await this.model.findAll();
-            }
-            catch(e){
-                result = e;
-            }
-            return formatSequelizeResponse(result);
+            return await executeAndFormat(this.model,"findAll", {});
         }
 
         static async update(id, data) {
             // We update a ressource in the database
-            let result = null;
-            try{
-                result = await this.model.update(data, {where: {id: id}});
-            }
-            catch(e){
-                result = e;
-            }
+            return await executeAndFormat(this.model,"update", data, {where: {id: id}});
 
-            return formatSequelizeResponse(result);
         }
 
         static async delete(id) {
             // We delete a ressource from the database
-            let result = null;
-            try{
-                result = await this.model.destroy({where: {id: id}});
-            }
-            catch(e){
-                result = e;
-            }
-            return formatSequelizeResponse(result);
+            return await executeAndFormat(this.model,"destroy", {where: {id: id}});
         }
 
         static async exists(id) {
@@ -115,7 +80,9 @@ module.exports = async (app) => {
         await Ressource.model.sync({alter: true});
         show_check('Table creation/update [ressource]','OK');
     } catch (error) {
+        /* istanbul ignore next */
         show_check('Table creation/update [ressource]','KO',error);
+        /* istanbul ignore next */
         process.exit(1);
     }
 

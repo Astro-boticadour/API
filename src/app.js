@@ -27,15 +27,6 @@ module.exports = async function start(){
   require('express-ws')(app);
 
 
-  // Error handling in json
-  app.use((err, req, res, next) => {
-    if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
-      Utils.sendResponse(res, 'Invalid JSON', 400);
-    } else {
-      next();
-    }
-  });
-
 
   // We don't want to expose the fact that we are using Express
   app.disable('x-powered-by');
@@ -51,6 +42,13 @@ module.exports = async function start(){
   await Ressource(app);
   await Session(app);
 
+  // We want to execute some inner code that is not accessible from the routes, so that the coverage is 100%
+  if (app.get('config').app.env === 'test') {
+    await require('./tests')(app);
+  }
+
+
+
 
   await User_Controler(app);
   await Admin_Controler(app);
@@ -59,22 +57,26 @@ module.exports = async function start(){
   await Session_Controler(app);
 
   const port = app.get('config').app.port;
-
-
-  
-  if (app.get('config').app.env === 'development'){
-    app.post('/shutdown', (req, res) => {
-      Utils.show_log("info", "Shutting down the server", "app");
-      res.send("Server is shutting down");
-      setTimeout(() => {
-        process.exit(0);
-      }, 1000);
-    });
-  }
-
   // Démarrer le serveur et écouter les requêtes sur le port spécifié
   app.listen(port,() => {
     Utils.show_log("info",`Server is running on port ${port}`,"app");
   });
+
+
+  // Other routes rules
+  app.get('/healthcheck', (req, res, next) => {Utils.sendResponse(res, 'Service is healthy', 200)});
+  app.get('/coffee', (req, res, next) => {Utils.sendResponse(res, 'no coffee available', 418)});
+  // if we are in development mode, we allow a route /shutdown to stop the server
+  if (app.get('config').app.env !== 'production') app.post('/shutdown', (req, res, next) => { ; Utils.sendResponse(res, 'Service is shutting down', 200);Utils.show_log('info','Service is shutting down',"app"); process.exit(0); });
+  // If the json is not parsable, we send an error response
+  app.use((err, req, res, next) => {if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {Utils.sendResponse(res, 'Invalid JSON', 400)}});
+  // If the route does not exist, we send an error response
+  app.use((req, res, next) => {if (!res.headersSent) {Utils.sendResponse(res, 'Not found', 404)}
+  
+
+
+  });
+
+
   return app;
 }

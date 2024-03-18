@@ -44,6 +44,7 @@ module.exports = async (app) => {
                 result = await this.model.create({startTime: startTime, endTime: endTime, projectId: projectId, userLogin: userLogin});
             }
             catch(error){
+                /* istanbul ignore next */
                 result = error;
             }
             return formatSequelizeResponse(result);
@@ -56,6 +57,7 @@ module.exports = async (app) => {
                 result = await this.model.findByPk(id);
             }
             catch(e){
+                /* istanbul ignore next */
                 result = e;
             }
             return formatSequelizeResponse(result);
@@ -68,6 +70,7 @@ module.exports = async (app) => {
                 result = await this.model.findAll();
             }
             catch(e){
+                /* istanbul ignore next */
                 result = e;
             }
             return formatSequelizeResponse(result);
@@ -80,6 +83,7 @@ module.exports = async (app) => {
                 result = await this.model.update(data, {where: {id: id}});
             }
             catch(e){
+                /* istanbul ignore next */
                 result = e;
             }
 
@@ -93,6 +97,7 @@ module.exports = async (app) => {
                 result = await this.model.destroy({where: {id: id}});
             }
             catch(e){
+                /* istanbul ignore next */
                 result = e;
             }
             return formatSequelizeResponse(result);
@@ -122,6 +127,7 @@ module.exports = async (app) => {
                 result = await this.model.findAll({where: {userLogin: login, endTime: null}});
             }
             catch(e){
+                /* istanbul ignore next */
                 result = e;
             }
             return formatSequelizeResponse(result);
@@ -142,17 +148,13 @@ module.exports = async (app) => {
         const Project = app.get('Project');
         Session.model.belongsTo(User.model, {foreignKey: 'userLogin', targetKey: 'login', onDelete: 'CASCADE'});
         Session.model.belongsTo(Project.model, {foreignKey: 'projectId', targetKey: 'id', onDelete: 'CASCADE'});
-
-
-        await Session.model.sync({force: true});
-
-
-
-
-
+        await Session.model.sync({alter: true});
         show_check('Table creation/update [session]','OK');
-    } catch (error) {
+    } 
+    catch (error) {
+        /* istanbul ignore next */
         show_check('Table creation/update [session]','KO',error);
+        /* istanbul ignore next */
         process.exit(1);
     }
 

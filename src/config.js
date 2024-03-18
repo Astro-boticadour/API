@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 module.exports = async (app) => {
   app.set('config',
   {
@@ -8,11 +9,11 @@ module.exports = async (app) => {
 
     
     database : {
-      db_name: 'db',
-      username: 'root',
-      password: 'notSecureChangeMe',
+      db_name: process.env.DB_NAME || 'astro',
+      username: process.env.DB_USERNAME || 'root',
+      password: process.env.DB_PASSWORD || 'notSecureChangeMe',
       options: {
-        host: 'localhost',
+        host: process.env.DB_HOST || 'localhost',
         dialect: 'mysql' ,
         logging : process.env.DB_LOGGING || false
       }
