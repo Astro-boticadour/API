@@ -38,15 +38,6 @@ module.exports = async function start(){
     }
   });
 
-  if (app.get('config').app.env === 'development'){
-    app.post('/shutdown', (req, res) => {
-      Utils.show_log("info", "Shutting down the server", "app");
-      res.send("Server is shutting down");
-      setTimeout(() => {
-        process.exit(0);
-      }, 1000);
-    });
-  }
 
   // We don't want to expose the fact that we are using Express
   app.disable('x-powered-by');
@@ -70,6 +61,18 @@ module.exports = async function start(){
   await Session_Controler(app);
 
   const port = app.get('config').app.port;
+
+
+  
+  if (app.get('config').app.env === 'development'){
+    app.post('/shutdown', (req, res) => {
+      Utils.show_log("info", "Shutting down the server", "app");
+      res.send("Server is shutting down");
+      setTimeout(() => {
+        process.exit(0);
+      }, 1000);
+    });
+  }
 
   // Démarrer le serveur et écouter les requêtes sur le port spécifié
   app.listen(port,() => {
