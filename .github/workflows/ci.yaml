@@ -1,11 +1,11 @@
-name: Build and Run Application
+name: Test Astro API
 on:
   push:
     branches:
       - express-version
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     
     steps:
