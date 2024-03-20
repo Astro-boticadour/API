@@ -16,7 +16,7 @@ const Admin_Controler = require('./controlers/admin-controler');
 const Project_Controler = require('./controlers/project-controler');
 const Ressource_Controler = require('./controlers/ressource-controler');
 const Session_Controler = require('./controlers/session-controler');
-const Utilisation_Controler = require('./controlers/utilisation-controler');
+// const Utilisation_Controler = require('./controlers/utilisation-controler');
 
 
 
