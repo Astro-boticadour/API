@@ -1,5 +1,5 @@
 const sequelize = require('sequelize');
-const {formatSequelizeResponse,show_check} = require('../utils');
+const {formatSequelizeResponse,show_check,executeAndFormat} = require('../utils');
 
 
 module.exports = async (app) => {
@@ -39,7 +39,7 @@ module.exports = async (app) => {
 
         static async create(startTime, endTime, projectId, userLogin) {
             // We create a new session in the database
-            let result = await this.model.create({startTime: startTime, endTime: endTime, projectId: projectId, userLogin: userLogin});
+            let result =  await executeAndFormat(this.model,"create", { startTime, endTime, projectId, userLogin });
             if (result.status === 'success') {
                 result =  await this.read(result.result.id);
                 app.emit('sessions',"created", result.result);
@@ -49,17 +49,17 @@ module.exports = async (app) => {
 
         static async read(id) {
             // We read a session from the database
-            return await this.model.findByPk(id)
+            return await executeAndFormat(this.model,"findByPk", id);
         }
 
-        static async readAll() {
+        static async readAll(args={}) {
             // We read all projects from the database
-            return await this.model.findAll();
+            return await executeAndFormat(this.model,"findAll", args);
         }
 
         static async update(id, data) {
             // We update a session in the database
-            let result = await this.model.update(data, {where: {id: id}});
+            let result = await executeAndFormat(this.model,"update", data, {where: {id: id}});
             if (result.status === 'success') {
                 result =  await this.read(id);
                 app.emit('sessions',"updated", result.result);
@@ -69,7 +69,7 @@ module.exports = async (app) => {
 
         static async delete(id) {
             // We delete a session from the database
-            let result = await this.model.destroy({where: {id: id}});
+            let result = await executeAndFormat(this.model,"destroy", {where: {id: id}});
             if (result.status === 'success') {
                 app.emit('sessions',"deleted", {id});
             }
