@@ -49,9 +49,9 @@ module.exports = async (app) => {
 
         }
 
-        static async readAll() {
+        static async readAll(args={}) {
             // We read all utilisations from the database
-            return await executeAndFormat(this.model,"findAll", {});
+            return await executeAndFormat(this.model,"findAll", args);
         }
 
         static async update(id, data) {
@@ -102,6 +102,10 @@ module.exports = async (app) => {
         // force true will drop the table if it already exists and create a new one
         // alter true will update the table if it already exists 
         // await Utilisation.model.sync({ force: true });
+        const Ressource = app.get('Ressource');
+        const Session = app.get('Session');
+        Utilisation.model.belongsTo(Ressource.model, {foreignKey: 'ressourceId', targetKey: 'id', onDelete: 'cascade'});
+        Utilisation.model.belongsTo(Session.model, {foreignKey: 'sessionId', targetKey: 'id', onDelete: 'cascade'});
         await Utilisation.model.sync({alter: true});
         show_check('Table creation/update [utilisation]','OK');
     } catch (error) {
