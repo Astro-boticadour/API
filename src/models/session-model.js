@@ -5,7 +5,7 @@ const {formatSequelizeResponse,show_check} = require('../utils');
 module.exports = async (app) => {
     class Session {
         // We create the model for the session table in the database
-        static model = app.get("db").define('session', {
+        static model = app.get("db").define('sessions', {
             id : {
                 type: sequelize.INTEGER,
                 primaryKey: true,
@@ -39,68 +39,41 @@ module.exports = async (app) => {
 
         static async create(startTime, endTime, projectId, userLogin) {
             // We create a new session in the database
-            let result = null;
-            try{
-                result = await this.model.create({startTime: startTime, endTime: endTime, projectId: projectId, userLogin: userLogin});
+            let result = await this.model.create({startTime: startTime, endTime: endTime, projectId: projectId, userLogin: userLogin});
+            if (result.status === 'success') {
+                result =  await this.read(result.result.id);
+                app.emit('sessions',"created", result.result);
             }
-            catch(error){
-                /* istanbul ignore next */
-                result = error;
-            }
-            return formatSequelizeResponse(result);
+            return result;
         }
 
         static async read(id) {
             // We read a session from the database
-            let result = null
-            try{
-                result = await this.model.findByPk(id);
-            }
-            catch(e){
-                /* istanbul ignore next */
-                result = e;
-            }
-            return formatSequelizeResponse(result);
+            return await this.model.findByPk(id)
         }
 
         static async readAll() {
             // We read all projects from the database
-            let result = null;
-            try{
-                result = await this.model.findAll();
-            }
-            catch(e){
-                /* istanbul ignore next */
-                result = e;
-            }
-            return formatSequelizeResponse(result);
+            return await this.model.findAll();
         }
 
         static async update(id, data) {
             // We update a session in the database
-            let result = null;
-            try{
-                result = await this.model.update(data, {where: {id: id}});
+            let result = await this.model.update(data, {where: {id: id}});
+            if (result.status === 'success') {
+                result =  await this.read(id);
+                app.emit('sessions',"updated", result.result);
             }
-            catch(e){
-                /* istanbul ignore next */
-                result = e;
-            }
-
-            return formatSequelizeResponse(result);
+            return result;
         }
 
         static async delete(id) {
             // We delete a session from the database
-            let result = null;
-            try{
-                result = await this.model.destroy({where: {id: id}});
+            let result = await this.model.destroy({where: {id: id}});
+            if (result.status === 'success') {
+                app.emit('sessions',"deleted", {id});
             }
-            catch(e){
-                /* istanbul ignore next */
-                result = e;
-            }
-            return formatSequelizeResponse(result);
+            return result;
         }
 
         static async exists(id) {

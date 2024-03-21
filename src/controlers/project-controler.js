@@ -55,8 +55,8 @@ module.exports = async (app) => {
         // We use JOI to validate the request body
         const schema = Joi.object({
             name: Joi.string().max(127).required(),
-            dateDebut: Joi.date().format(['YYYY-MM-DD']).required(),
-            dateFin: Joi.date().format(['YYYY-MM-DD']).required(),
+            startDate: Joi.date().format(['YYYY-MM-DD']),
+            endDate: Joi.date().format(['YYYY-MM-DD']),
             isClosed: Joi.boolean(),
             description: Joi.string().max(255)    
         });
@@ -67,17 +67,19 @@ module.exports = async (app) => {
             return;
         }
 
-        req.body.dateFin+= "T23:59:59.999Z";
-        // We check if the dateFin is after the dateDebut
-        if (new Date(req.body.dateDebut) > new Date(req.body.dateFin)){
-            sendResponse(res, 'dateFin must be after dateDebut', 400);
+        if (req.body.endDate && req.body.startDate) {
+            req.body.endDate += "T23:59:59.999Z";
+            // We check if the endDate is after the startDate
+            if (new Date(req.body.startDate) > new Date(req.body.endDate)) {
+            sendResponse(res, 'endDate must be after startDate', 400);
             return;
+            }
         }
 
 
 
 
-        let result = await Project.create(req.body.name, req.body.dateDebut, req.body.dateFin, req.body.description)
+        let result = await Project.create(req.body.name, req.body.startDate, req.body.endDate, req.body.description)
         // If the Project was created, we send a success response, otherwise we send an error response
         // can't test this line because can't find a way to make the database fail
         /* istanbul ignore next */
@@ -96,8 +98,8 @@ module.exports = async (app) => {
         // We use JOI to validate the request body
         const schema = Joi.object({
             name: Joi.string().max(127),
-            dateDebut: Joi.date().format(['YYYY-MM-DD']),
-            dateFin: Joi.date().format(['YYYY-MM-DD']),
+            startDate: Joi.date().format(['YYYY-MM-DD']),
+            endDate: Joi.date().format(['YYYY-MM-DD']),
             isClosed: Joi.boolean(),
             description: Joi.string().max(255)    
         });
@@ -111,11 +113,11 @@ module.exports = async (app) => {
             return;
         }
 
-        if (req.body.dateFin){
-            req.body.dateFin+= "T23:59:59.999Z";
-            // We check if the dateFin is after the dateDebut
-            if (new Date(req.body.dateDebut) > new Date(req.body.dateFin)){
-                sendResponse(res, 'dateFin must be after dateDebut', 400);
+        if (req.body.endDate){
+            req.body.endDate+= "T23:59:59.999Z";
+            // We check if the endDate is after the startDate
+            if (new Date(req.body.startDate) > new Date(req.body.endDate)){
+                sendResponse(res, 'endDate must be after startDate', 400);
                 return;
             }
         }

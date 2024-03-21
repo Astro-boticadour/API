@@ -5,7 +5,7 @@ const {formatSequelizeResponse,show_check,executeAndFormat} = require('../utils'
 module.exports = async (app) => {
     class Utilisation {
         // We create the model for the utilisation table in the database
-        static model = app.get("db").define('utilisation', {
+        static model = app.get("db").define('utilisations', {
             id: {
                 type: sequelize.INTEGER,
                 primaryKey: true,
@@ -35,7 +35,12 @@ module.exports = async (app) => {
 
         static async create(usageStartDate, usageEndDate, sessionId, ressourceId) {
             // We create a new utilisation in the database
-            return await executeAndFormat(this.model,"create", { usageStartDate, usageEndDate, sessionId, ressourceId });
+            let result = await executeAndFormat(this.model,"create", { usageStartDate, usageEndDate, sessionId, ressourceId });
+            if (result.status === 'success') {
+                result =  await this.read(result.result.id);
+                app.emit('utilisation',"created", result.result);
+            }
+            return result;
         }
 
         static async read(id) {
@@ -51,12 +56,23 @@ module.exports = async (app) => {
 
         static async update(id, data) {
             // We update an utilisation in the database
-            return await executeAndFormat(this.model,"update", data, {where: {id: id}});
+            let result = await executeAndFormat(this.model,"update", data, {where: {id: id}});
+            if (result.status === 'success') {
+                result =  await this.read(id);
+                app.emit('utilisation',"updated", result.result);
+            }
+            return result; 
+
         }
 
         static async delete(id) {
             // We delete a utilisation from the database
-            return await executeAndFormat(this.model,"destroy", {where: {id: id}});
+            let result =  await executeAndFormat(this.model,"destroy", {where: {id: id}});
+            if (result.status === 'success') {
+                app.emit('utilisation',"deleted", {id});
+            }
+            return result;
+
         }
 
 
@@ -66,7 +82,15 @@ module.exports = async (app) => {
                 return true;
             }
             return false;
+        }
 
+
+        static async is_finished(id) {
+            let utilisation = await this.read(id);
+            if (utilisation.result.usageEndDate !== null) {
+                return true;
+            }
+            return false;
         }
 
 

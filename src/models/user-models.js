@@ -5,7 +5,7 @@ const {formatSequelizeResponse,show_check,executeAndFormat} = require('../utils'
 module.exports = async (app) => {
     class User {
         // We create the model for the user table in the database
-        static model = app.get("db").define('user', {
+        static model = app.get("db").define('users', {
             login: {
                 type: sequelize.STRING,
                 primaryKey: true,
@@ -31,7 +31,12 @@ module.exports = async (app) => {
 
         static async create(login, firstName, lastName, pole) {
             // We create a new user in the database
-            return await executeAndFormat(this.model,"create", { login, firstName, lastName, pole });
+            let result = await executeAndFormat(this.model,"create", { login, firstName, lastName, pole });
+            if (result.status === 'success') {
+                result =  await this.read(login);
+                app.emit('users',"created", result.result);
+            }
+            return result;
         }
 
         static async read(login) {
@@ -47,12 +52,23 @@ module.exports = async (app) => {
 
         static async update(login, data) {
             // We update a user in the database
-            return await executeAndFormat(this.model,"update", data, {where: {login: login}});
+            let result = await executeAndFormat(this.model,"update", data, {where: {login: login}});
+            if (result.status === 'success') {
+                result =  await this.read(login);
+                app.emit('users',"updated", result.result);
+            }
+            return result;
+
         }
 
         static async delete(login) {
             // We delete a user from the database
-            return await executeAndFormat(this.model,"destroy", {where: {login: login}});
+            let result =  await executeAndFormat(this.model,"destroy", {where: {login: login}});
+            if (result.status === 'success') {
+                app.emit('users',"deleted", {login});
+            }
+            return result;
+            
         }
 
 

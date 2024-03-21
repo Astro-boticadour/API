@@ -85,7 +85,7 @@ function formatWSResponse(reason,data){
 
 async function handleWS(name,app, ws, req) {
   show_log('info',`[${name}] WebSocket was opened by ${req.connection.remoteAddress}`,"app");
-  app.on(name, (reason,data,req) => {
+  app.on(name, (reason,data) => {
       ws.send(JSON.stringify(formatWSResponse(reason,data)));
   });
 

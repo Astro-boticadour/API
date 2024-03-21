@@ -56,8 +56,7 @@ module.exports = async (app) => {
         const schema = Joi.object({
             name: Joi.string().max(127).required(),
             model: Joi.string().max(127).required(),
-            type: Joi.string().max(127).required(),
-            isUsed: Joi.boolean()
+            type: Joi.string().max(127).required()
         });
         const { error } = schema.validate(req.body);
         // If the request body is not valid, we send an error response
@@ -65,9 +64,6 @@ module.exports = async (app) => {
             sendResponse(res, error.details[0].message, 400);
             return;
         }
-
-        req.body.dateFin+= "T23:59:59.999Z";
-
 
 
         let result = await Ressource.create(req.body.name, req.body.type, req.body.model, req.body.isUsed);
@@ -79,7 +75,7 @@ module.exports = async (app) => {
         }
         else{
             sendResponse(res, result.result, 201);
-            app.emit('ressources',"created",result.result,req);
+            // app.emit('ressources',"created",result.result,req);
         }
         }
     );
@@ -90,8 +86,7 @@ module.exports = async (app) => {
         const schema = Joi.object({
             name: Joi.string().max(127),
             model: Joi.string().max(127),
-            type: Joi.string().max(127),
-            isUsed: Joi.boolean()
+            type: Joi.string().max(127)
         });
 
         const { error } = schema.validate(req.body);
@@ -117,8 +112,8 @@ module.exports = async (app) => {
         else{
             // We get the Ressource from the database to send it in the response
             let p = await Ressource.read(req.params.id);
-            sendResponse(res, p.result, 200);
             app.emit('ressources',"updated",p.result,req);
+            sendResponse(res, p.result, 200);
         }
         }
     );

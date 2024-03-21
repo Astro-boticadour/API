@@ -6,7 +6,7 @@ const { date } = require('@hapi/joi');
 module.exports = async (app) => {
     class Project {
         // We create the model for the project table in the database
-        static model = app.get("db").define('project', {
+        static model = app.get("db").define('projects', {
             id : {
                 type: sequelize.INTEGER,
                 primaryKey: true,
@@ -18,11 +18,12 @@ module.exports = async (app) => {
             },
             startDate: {
                 type: sequelize.DATE,
-                defaultValue: "1970-01-01",
+                defaultValue: "0000-01-01",
                 allowNull: false
             },
             endDate: {
                 type: sequelize.DATE,
+                defaultValue: "0000-01-01",
                 allowNull: false
             },
             isClosed: {
@@ -39,9 +40,14 @@ module.exports = async (app) => {
         });
 
 
-        static async create(name, dateDebut, dateFin, description) {
+        static async create(name, startDate, endDate, description) {
             // We create a new project in the database
-            return await executeAndFormat(this.model,"create", { name, startDate, endDate, description });
+            let result =  await executeAndFormat(this.model,"create", { name, startDate, endDate, description });
+            if (result.status === 'success') {
+                result =  await this.read(result.result.id);
+                app.emit('projects',"created", result.result);
+            }
+            return result;
 
         }
 
@@ -59,13 +65,22 @@ module.exports = async (app) => {
 
         static async update(id, data) {
             // We update a project in the database
-            return await executeAndFormat(this.model,"update", data, {where: {id: id}});
+            let result = await executeAndFormat(this.model,"update", data, {where: {id: id}});
+            if (result.status === 'success') {
+                result =  await this.read(id);
+                app.emit('projects',"updated", result.result);
+            }
+            return result;
 
         }
 
         static async delete(id) {
             // // We delete a project from the database
-            return await executeAndFormat(this.model,"destroy", {where: {id: id}});
+            let result = await executeAndFormat(this.model,"destroy", {where: {id: id}});
+            if (result.status === 'success') {
+                app.emit('projects',"deleted", {id});
+            }
+            return result;
 
         }
 

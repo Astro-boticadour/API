@@ -16,7 +16,7 @@ const Admin_Controler = require('./controlers/admin-controler');
 const Project_Controler = require('./controlers/project-controler');
 const Ressource_Controler = require('./controlers/ressource-controler');
 const Session_Controler = require('./controlers/session-controler');
-// const Utilisation_Controler = require('./controlers/utilisation-controler');
+const Utilisation_Controler = require('./controlers/utilisation-controler');
 
 
 
@@ -56,7 +56,7 @@ module.exports = async function start(){
   await Project_Controler(app);
   await Ressource_Controler(app);
   await Session_Controler(app);
-  // await Utilisation_Controler(app);
+  await Utilisation_Controler(app);
 
   const port = app.get('config').app.port;
   // Démarrer le serveur et écouter les requêtes sur le port spécifié
