@@ -85,8 +85,6 @@ module.exports = async (app) => {
                 return;
             }
         }
-
-
         let result = await Session.create(req.body.startTime, req.body.endTime, req.body.idProject, req.body.loginUser);
         // If the Session was created, we send a success response, otherwise we send an error response
         // can't test this line because can't find a way to make the database fail
@@ -205,8 +203,35 @@ module.exports = async (app) => {
         }
     );
 
+    app.get('/sessions/allFromUser/:login', async (req, res)=>{
+        // If the user does not exist, we send an error response
+        if (!await checkDependencies(res,null,null,req.params.login)){
+            return;
+        }
+        let result = await Session.readAllFromUser(req.params.login);
+        if (result.status === 'error'){
+            sendResponse(res, result.result, 400);
+        }
+        else{
+            sendResponse(res, result.result, 200);
+        }
+    });
 
+    app.get('/sessions/usage/:sessionId', async (req, res)=>{
+        if (!await checkDependencies(res, req.params.sessionId, null, null)){
+            return;
+        }
 
+        const Utilisation = app.get("Utilisations");
+        let result = await Utilisation.readAll({where: {sessionId: req.params.sessionId, usageEndDate: null}});
+        
+        if (result.status === 'error'){
+            sendResponse(res, result.result, 400);
+        }
+        else{
+            sendResponse(res, result.result, 200);
+        }
+    });
 
     async function checkDependencies(res,sessionsId=null,projectsId=null,usersLogin=null){
         // We check if the Session exists
@@ -217,7 +242,7 @@ module.exports = async (app) => {
             }
         }
         // We check if the Project exists
-        if (projectsId !== null){
+        if (projectsId != null){
             const Project = app.get('Project');
             if (!await Project.exists(projectsId)){
                 sendResponse(res, 'Project not found', 404);
@@ -234,6 +259,7 @@ module.exports = async (app) => {
         }
         return true;
     }
+
 
 }
 

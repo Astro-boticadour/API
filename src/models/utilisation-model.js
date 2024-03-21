@@ -49,8 +49,10 @@ module.exports = async (app) => {
 
         }
 
+        static async readAll(args = {}) {
         static async readAll(args={}) {
             // We read all utilisations from the database
+            return await executeAndFormat(this.model,"findAll", args);
             return await executeAndFormat(this.model,"findAll", args);
         }
 

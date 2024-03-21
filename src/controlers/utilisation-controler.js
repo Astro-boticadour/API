@@ -200,6 +200,21 @@ module.exports = async (app) => {
         }
     );
 
+    app.get('/utilisations/usage/:sessionId', async (req, res)=>{
+        if (!await checkDependencies(res, null, null, req.params.sessionId)){
+            return;
+        }
+
+        let result = await Utilisation.readAll({where: {sessionId: req.params.sessionId, usageEndDate: null}});
+        
+        if (result.status === 'error'){
+            sendResponse(res, result.result, 400);
+        }
+        else{
+            sendResponse(res, result.result, 200);
+        }
+    });
+
 
 
 
