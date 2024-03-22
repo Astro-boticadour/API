@@ -117,29 +117,44 @@ module.exports = async (app) => {
             return result;
         }
 
-        static async closeAllSessions() {
-            const now = new Date(new Date() - new Date().getTimezoneOffset() * 60 * 1000).toISOString()
 
-            //We get all the active sessions
-            let active_sessions = await this.model.findAll({where: {endTime: null}});
-            // We get the usage of all the active sessions
+        static async close(id, endTime) {
+            // We check if the session has usage that is not finished
             const Utilisation = app.get("Utilisation");
-            for (let i = 0; i < active_sessions.length; i++) {
-                let session = active_sessions[i];
-                let result = await Utilisation.readAll({where: {sessionId: session.id, usageEndDate: null}});
-                if (result.status === 'success') {
-                    let usage = result.result;
-                    for (let j = 0; j < usage.length; j++) {
-                        let utilisation = usage[j];
-                        await Utilisation.update(utilisation.id, {usageEndDate: now});
-                        // We also set the ressource as available
-                        const Ressource = app.get("Ressource");
-                        await Ressource.free(utilisation.ressourceId);
-                    }
+            let result = await Utilisation.readAll({where: {sessionId: id, usageEndDate: null}});
+            if (result.status === 'success') {
+                let usage = result.result;
+                for (let i = 0; i < usage.length; i++) {
+                    let utilisation = usage[i];
+                    await Utilisation.update(utilisation.id, {usageEndDate: endTime});
+                    // We also set the ressource as available
+                    const Ressource = app.get("Ressource");
+                    await Ressource.free(utilisation.ressourceId);
                 }
             }
+            result = await this.update(id, {endTime});
+            result = await this.read(id);
+            if (result.status === 'success') {
+                app.emit('sessions',"updated", result.result);
+            }
+            return result;
+            
+        }
+
+
+
+        static async closeAllSessions() {
+            const now = new Date(new Date() - new Date().getTimezoneOffset() * 60 * 1000).toISOString();
+
+            // We get all the active sessions
+            let active_sessions = await this.model.findAll({where: {endTime: null}});
+            // We get the usage of all the active sessions
             // We close all the active sessions
-            return await executeAndFormat(this.model,"update", {endTime: now}, {where: {endTime: null}});
+            for (let i = 0; i < active_sessions.length; i++) {
+                let session = active_sessions[i];
+                await this.close(session.id, now);
+            }
+            return active_sessions;
         }
 
     }

@@ -143,7 +143,15 @@ module.exports = async (app) => {
                 return;
             }
         }
-        let result = await Session.update(req.params.id, req.body);
+        
+        // 
+
+
+        let result = await Session.close(req.params.id, req.body.endTime);
+
+        
+
+
         // If the Session was updated, we send a success response, otherwise we send an error response
         // can't test this line because can't find a way to make the database fail
         /* istanbul ignore next */

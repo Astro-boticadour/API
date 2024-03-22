@@ -318,6 +318,20 @@ class testUtilisationsRoutes(unittest.TestCase):
         self.assertTrue('id' in res.json()['result'])
         self.assertEqual(res.json()['result']['id'], config.utilisation_id)
 
+    def test_27_close_session_should_free_ressources_and_utilisations(self):
+        res = requests.patch(BASE_URL + '/sessions/'+str(config.session_id), headers
+        ={'Authorization': 'Bearer ' + config.adminToken}, json={'endTime': (datetime.datetime.strptime(time.strftime("%Y-%m-%d %H:%M:%S"), "%Y-%m-%d %H:%M:%S") + datetime.timedelta(minutes=11)).strftime("%Y-%m-%d %H:%M:%S")})
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json()['status'], 'success')
+        self.assertTrue('result' in res.json())
+        self.assertTrue('id' in res.json()['result'])
+        self.assertTrue('startTime' in res.json()['result'])
+        self.assertTrue('endTime' in res.json()['result'])
+        self.assertTrue('userLogin' in res.json()['result'])
+
+
+
+
 
 
     
