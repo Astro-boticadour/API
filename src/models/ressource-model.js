@@ -48,9 +48,9 @@ module.exports = async (app) => {
             return await executeAndFormat(this.model,"findByPk", id);
         }
 
-        static async readAll(args = {}) {
+        static async readAll(args={}) {
             // We read all projects from the database
-            return await executeAndFormat(this.model,"findAll", args);
+            return await executeAndFormat(this.model,"findAll", {});
         }
 
         static async update(id, data) {

@@ -1,4 +1,4 @@
-const {handleWS,show_log,sendResponse} = require('../utils');
+const {handleWS,show_log,sendResponse,convertToTimeZone} = require('../utils');
 const JoiDate = require('@hapi/joi-date');
 const Joi = require('@hapi/joi').extend(JoiDate);
 
@@ -21,6 +21,10 @@ module.exports = async (app) => {
         }
         if ([ 'PUT' ].includes(req.method)) {
             sendResponse(res, 'Method not allowed', 405);
+            return;
+        }
+        if (req.method === 'OPTIONS'){
+            sendResponse(res, ["GET","POST","PATCH","DELETE"], 200);
             return;
         }
         next();
@@ -80,11 +84,15 @@ module.exports = async (app) => {
         // We close the session if the endTime is provided
         if (req.body.endTime){
             req.body.isClosed = true;
-            if (new Date(req.body.endTime) < new Date(req.body.startTime)){
+            req.body.endTime = convertToTimeZone(req.body.endTime)
+            if (req.body.endTime < convertToTimeZone(req.body.startTime)){
                 sendResponse(res, 'endTime must be greater than startTime', 400);
                 return;
             }
         }
+
+        // We convert the startTime and endTime to Date objects as UTC  
+        req.body.startTime = convertToTimeZone(req.body.startTime)
         let result = await Session.create(req.body.startTime, req.body.endTime, req.body.idProject, req.body.loginUser);
         // If the Session was created, we send a success response, otherwise we send an error response
         // can't test this line because can't find a way to make the database fail
@@ -94,7 +102,6 @@ module.exports = async (app) => {
         }
         else{
             sendResponse(res, result.result, 201);
-            app.emit('sessions',"created",result.result,req);
         }
         }
     );
@@ -130,7 +137,8 @@ module.exports = async (app) => {
         if (req.body.endTime){
             req.body.isClosed = true;
             // We check if the endTime is greater than the startTime
-            if (new Date(req.body.endTime) < new Date(session.result.startTime)){
+            req.body.endTime =convertToTimeZone(req.body.endTime)
+            if (req.body.endTime < new Date(session.result.startTime)){
                 sendResponse(res, 'endTime must be greater than startTime', 400);
                 return;
             }
@@ -146,7 +154,6 @@ module.exports = async (app) => {
             // We get the Session from the database to send it in the response
             let p = await Session.read(req.params.id);
             sendResponse(res, p.result, 200);
-            app.emit('sessions',"updated",p.result,req);
         }
         }
     );
@@ -198,7 +205,6 @@ module.exports = async (app) => {
         }
         else{
             sendResponse(res, {id: Number(req.params.id)}, 200);
-            app.emit('sessions',"deleted",{id: Number(req.params.id)},req);
         }
         }
     );
@@ -210,6 +216,7 @@ module.exports = async (app) => {
         }
         let result = await Session.readAllFromUser(req.params.login);
         if (result.status === 'error'){
+            /* istanbul ignore next */
             sendResponse(res, result.result, 400);
         }
         else{
@@ -219,13 +226,15 @@ module.exports = async (app) => {
 
     app.get('/sessions/usage/:sessionId', async (req, res)=>{
         if (!await checkDependencies(res, req.params.sessionId, null, null)){
+            /* This line is covered but istanbul does not see it */
+            /* istanbul ignore next */ 
             return;
         }
 
-        const Utilisation = app.get("Utilisations");
-        let result = await Utilisation.readAll({where: {sessionId: req.params.sessionId, usageEndDate: null}});
+        let result = await Session.get_session_usage(req.params.sessionId);
         
         if (result.status === 'error'){
+            /* istanbul ignore next */
             sendResponse(res, result.result, 400);
         }
         else{

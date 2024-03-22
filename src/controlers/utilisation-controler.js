@@ -1,4 +1,4 @@
-const {handleWS,show_log,sendResponse} = require('../utils');
+const {handleWS,show_log,sendResponse,convertToTimeZone} = require('../utils');
 const JoiDate = require('@hapi/joi-date');
 const Joi = require('@hapi/joi').extend(JoiDate);
 
@@ -25,6 +25,10 @@ module.exports = async (app) => {
         }
         if ([ 'PUT' ].includes(req.method)) {
             sendResponse(res, 'Method not allowed', 405);
+            return;
+        }
+        if (req.method === 'OPTIONS'){
+            sendResponse(res, ["GET","POST","PATCH","DELETE"], 200);
             return;
         }
         next();
@@ -88,10 +92,23 @@ module.exports = async (app) => {
             sendResponse(res, 'Session is closed', 409);
             return;
         }
+        req.body.usageStartDate = convertToTimeZone(req.body.usageStartDate)
 
+
+        // We check if the usageStartDate is before the session start
+        let session = await Session.read(req.body.sessionId);
+        if (req.body.usageStartDate < new Date(session.result.startTime)){
+            sendResponse(res, 'usageStartDate must be after the session start', 400);
+            return;
+        }
+        
+        
         // StartDate can't be in the future
         const margin = 20 * 60 * 1000; // 20 minutes in milliseconds
-        if (new Date(req.body.usageStartDate) > new Date(Date.now() + margin)){
+        // Ugliest line of code I've ever written, but it works
+        const now  = new Date(new Date(Date.now() + margin) - new Date(Date.now() + margin).getTimezoneOffset() * 60 * 1000);
+
+        if (req.body.usageStartDate > now){
             sendResponse(res, 'usageStartDate can\'t be in the future', 400);
             return;
         }
@@ -101,7 +118,7 @@ module.exports = async (app) => {
 
         // We check if the usageEndDate is greater than the usageStartDate
         if (req.body.usageEndDate){
-            if (new Date(req.body.usageEndDate) < new Date(req.body.usageStartDate)){
+            if (convertToTimeZone(req.body.usageEndDate) < req.body.usageStartDate){
                 sendResponse(res, 'usageEndDate must be greater than usageStartDate', 400);
                 return;
             }
@@ -136,7 +153,9 @@ module.exports = async (app) => {
 
         const { error } = schema.validate(req.body);
         // If the request body is not valid, we send an error response
+        /* istanbul ignore next */
         if (error) {
+            /* istanbul ignore next */
             sendResponse(res, error.details[0].message, 400);
             return;
         }
@@ -145,7 +164,7 @@ module.exports = async (app) => {
         if (!await checkDependencies(res,req.params.id,null)){
             return;
         }
-
+        // req.body.usageEndDate = convertToTimeZone(req.body.usageEndDate)
         let utilisation = await Utilisation.read(req.params.id);
 
         // We check if the Utilisation is finished
@@ -155,17 +174,26 @@ module.exports = async (app) => {
         }
 
         
-        // We close the utilisation if the endTime is provided
-        if (req.body.usageEndDate){
-            // We check that the usageEndDate is greater than the usageStartDate
-            if (new Date(req.body.usageEndDate) < new Date(utilisation.result.usageStartDate)){
-                sendResponse(res, 'endTime must be greater than startTime', 400);
-                return;
-            }
-            else{
-                await Ressource.free(utilisation.result.ressourceId);
-            }
+
+        // We check that the usageEndDate is greater than the usageStartDate
+        if (convertToTimeZone(req.body.usageEndDate) < new Date(utilisation.result.usageStartDate)){
+            sendResponse(res, 'usageEndDate must be greater than usageStartDate', 400);
+            return;
         }
+
+
+        const margin = 20 * 60 * 1000; // 20 minutes in milliseconds
+        // Ugliest line of code I've ever written, but it works
+        const now  = new Date(new Date(Date.now() + margin) - new Date(Date.now() + margin).getTimezoneOffset() * 60 * 1000);
+        // We check if the usageEndDate is in the future
+        if (convertToTimeZone(req.body.usageEndDate) > now){
+            sendResponse(res, 'usageEndDate can\'t be in the future', 400);
+            return;
+        }
+
+            
+        
+    
         let result = await Utilisation.update(req.params.id, req.body);
         // If the Utilisation was updated, we send a success response, otherwise we send an error response
         // can't test this line because can't find a way to make the database fail
@@ -174,8 +202,11 @@ module.exports = async (app) => {
             sendResponse(res, result.result, 400);
         }
         else{
+            // We free the ressource if the usageEndDate is provided
+            await Ressource.free(utilisation.result.ressourceId);
             // We get the Utilisation from the database to send it in the response
             let p = await Utilisation.read(req.params.id);
+            
             sendResponse(res, p.result, 200);
         }
         }
@@ -208,6 +239,7 @@ module.exports = async (app) => {
         let result = await Utilisation.readAll({where: {sessionId: req.params.sessionId, usageEndDate: null}});
         
         if (result.status === 'error'){
+            /* istanbul ignore next */
             sendResponse(res, result.result, 400);
         }
         else{

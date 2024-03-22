@@ -23,6 +23,11 @@ module.exports = async (app) => {
             sendResponse(res, 'Method not allowed', 405);
             return;
         }
+        if (req.method === 'OPTIONS'){
+            sendResponse(res, ["GET","POST","PATCH","DELETE"], 200);
+            return;
+        }
+
         next();
     });
 
@@ -75,7 +80,6 @@ module.exports = async (app) => {
         }
         else{
             sendResponse(res, result.result, 201);
-            // app.emit('ressources',"created",result.result,req);
         }
         }
     );
@@ -112,7 +116,6 @@ module.exports = async (app) => {
         else{
             // We get the Ressource from the database to send it in the response
             let p = await Ressource.read(req.params.id);
-            app.emit('ressources',"updated",p.result,req);
             sendResponse(res, p.result, 200);
         }
         }
@@ -135,9 +138,8 @@ module.exports = async (app) => {
         }
         else{
             sendResponse(res, {id: Number(req.params.id)}, 200);
-            app.emit('ressources',"deleted",{id: Number(req.params.id)},req);
         }
-        }
+    }
     );
 
 
