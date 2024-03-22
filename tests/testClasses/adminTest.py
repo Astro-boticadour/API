@@ -52,6 +52,12 @@ class TestAdminRoutes(unittest.TestCase):
         self.assertEqual(res.json()['status'], 'success')
         self.assertEqual(res.json()['result'], 'Token is valid')
 
+    def test_06_check_OPTIONS(self):
+        res = requests.options(BASE_URL + '/login')
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json()['status'], 'success')
+        self.assertEqual(res.json()['result'], ['POST'])
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

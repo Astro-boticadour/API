@@ -1,11 +1,12 @@
 const sequelize = require('sequelize');
 const {formatSequelizeResponse,show_check,executeAndFormat} = require('../utils');
+const { date } = require('@hapi/joi');
 
 
 module.exports = async (app) => {
     class Project {
         // We create the model for the project table in the database
-        static model = app.get("db").define('project', {
+        static model = app.get("db").define('projects', {
             id : {
                 type: sequelize.INTEGER,
                 primaryKey: true,
@@ -15,14 +16,13 @@ module.exports = async (app) => {
                 type: sequelize.STRING,
                 allowNull: false
             },
-            dateDebut: {
+            startDate: {
                 type: sequelize.DATE,
-                // Format to use: YYYY/MM/DD
-                allowNull: false
+                allowNull: true
             },
-            dateFin: {
+            endDate: {
                 type: sequelize.DATE,
-                allowNull: false
+                allowNull: true
             },
             isClosed: {
                 type: sequelize.BOOLEAN,
@@ -35,73 +35,51 @@ module.exports = async (app) => {
         },
         {
             timestamps: false
-          });
+        });
 
 
-        static async create(name, dateDebut, dateFin, description) {
+        static async create(name, startDate, endDate, description) {
             // We create a new project in the database
-            return await executeAndFormat(this.model,"create", { name, dateDebut, dateFin, description });
-            // let result = null;
-            // try{
-            //     result = await this.model.create({ name, dateDebut, dateFin, description });
-            // }
-            // catch(error){
-            //     result = error;
-            // }
-            // return formatSequelizeResponse(result);
+            let result =  await executeAndFormat(this.model,"create", { name, startDate, endDate, description });
+            if (result.status === 'success') {
+                result =  await this.read(result.result.id);
+                app.emit('projects',"created", result.result);
+            }
+            return result;
+
         }
 
         static async read(id) {
             // We read a project from the database
             return await executeAndFormat(this.model,"findByPk", id);
-            // let result = null
-            // try{
-            //     result = await this.model.findByPk(id);
-            // }
-            // catch(e){
-            //     result = e;
-            // }
-            // return formatSequelizeResponse(result);
+
         }
 
-        static async readAll() {
+        static async readAll(args={}) {
             // We read all projects from the database
-            return await executeAndFormat(this.model,"findAll", {});
-            // let result = null;
-            // try{
-            //     result = await this.model.findAll();
-            // }
-            // catch(e){
-            //     result = e;
-            // }
-            // return formatSequelizeResponse(result);
+            return await executeAndFormat(this.model,"findAll", args);
+
         }
 
         static async update(id, data) {
             // We update a project in the database
-            return await executeAndFormat(this.model,"update", data, {where: {id: id}});
-            // let result = null;
-            // try{
-            //     result = await this.model.update(data, {where: {id: id}});
-            // }
-            // catch(e){
-            //     result = e;
-            // }
+            let result = await executeAndFormat(this.model,"update", data, {where: {id: id}});
+            if (result.status === 'success') {
+                result =  await this.read(id);
+                app.emit('projects',"updated", result.result);
+            }
+            return result;
 
-            // return formatSequelizeResponse(result);
         }
 
         static async delete(id) {
             // // We delete a project from the database
-            return await executeAndFormat(this.model,"destroy", {where: {id: id}});
-            // let result = null;
-            // try{
-            //     result = await this.model.destroy({where: {id: id}});
-            // }
-            // catch(e){
-            //     result = e;
-            // }
-            // return formatSequelizeResponse(result);
+            let result = await executeAndFormat(this.model,"destroy", {where: {id: id}});
+            if (result.status === 'success') {
+                app.emit('projects',"deleted", {id : Number(id) });
+            }
+            return result;
+
         }
 
         static async exists(id) {

@@ -8,6 +8,10 @@ module.exports = async (app) => {
             sendResponse(res, 'Method not allowed', 405);
             return;
         }
+        if (req.method === 'OPTIONS'){
+            sendResponse(res, ["POST"], 200);
+            return;
+        }
         next();
     });
 

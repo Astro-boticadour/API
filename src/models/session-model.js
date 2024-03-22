@@ -1,11 +1,11 @@
 const sequelize = require('sequelize');
-const {formatSequelizeResponse,show_check} = require('../utils');
+const {formatSequelizeResponse,show_check,executeAndFormat} = require('../utils');
 
 
 module.exports = async (app) => {
     class Session {
         // We create the model for the session table in the database
-        static model = app.get("db").define('session', {
+        static model = app.get("db").define('sessions', {
             id : {
                 type: sequelize.INTEGER,
                 primaryKey: true,
@@ -39,68 +39,41 @@ module.exports = async (app) => {
 
         static async create(startTime, endTime, projectId, userLogin) {
             // We create a new session in the database
-            let result = null;
-            try{
-                result = await this.model.create({startTime: startTime, endTime: endTime, projectId: projectId, userLogin: userLogin});
+            let result =  await executeAndFormat(this.model,"create", { startTime, endTime, projectId, userLogin });
+            if (result.status === 'success') {
+                result =  await this.read(result.result.id);
+                app.emit('sessions',"created", result.result);
             }
-            catch(error){
-                /* istanbul ignore next */
-                result = error;
-            }
-            return formatSequelizeResponse(result);
+            return result;
         }
 
         static async read(id) {
             // We read a session from the database
-            let result = null
-            try{
-                result = await this.model.findByPk(id);
-            }
-            catch(e){
-                /* istanbul ignore next */
-                result = e;
-            }
-            return formatSequelizeResponse(result);
+            return await executeAndFormat(this.model,"findByPk", id);
         }
 
-        static async readAll() {
+        static async readAll(args={}) {
             // We read all projects from the database
-            let result = null;
-            try{
-                result = await this.model.findAll();
-            }
-            catch(e){
-                /* istanbul ignore next */
-                result = e;
-            }
-            return formatSequelizeResponse(result);
+            return await executeAndFormat(this.model,"findAll", args);
         }
 
         static async update(id, data) {
             // We update a session in the database
-            let result = null;
-            try{
-                result = await this.model.update(data, {where: {id: id}});
+            let result = await executeAndFormat(this.model,"update", data, {where: {id: id}});
+            if (result.status === 'success') {
+                result =  await this.read(id);
+                app.emit('sessions',"updated", result.result);
             }
-            catch(e){
-                /* istanbul ignore next */
-                result = e;
-            }
-
-            return formatSequelizeResponse(result);
+            return result;
         }
 
         static async delete(id) {
             // We delete a session from the database
-            let result = null;
-            try{
-                result = await this.model.destroy({where: {id: id}});
+            let result = await executeAndFormat(this.model,"destroy", {where: {id: id}});
+            if (result.status === 'success') {
+                app.emit('sessions',"deleted",  {id : Number(id) });
             }
-            catch(e){
-                /* istanbul ignore next */
-                result = e;
-            }
-            return formatSequelizeResponse(result);
+            return result;
         }
 
         static async exists(id) {
@@ -132,6 +105,58 @@ module.exports = async (app) => {
             }
             return formatSequelizeResponse(result);
         }
+
+        static async readAllFromUser(login) {
+            // We read all sessions from the database
+            return await executeAndFormat(this.model,"findAll", {where: {userLogin: login}});
+        }
+
+        static async get_session_usage(sessionId) {
+            const Utilisation = app.get("Utilisation");
+            let result = await Utilisation.readAll({where: {sessionId: sessionId, usageEndDate: null}});
+            return result;
+        }
+
+
+        static async close(id, endTime) {
+            // We check if the session has usage that is not finished
+            const Utilisation = app.get("Utilisation");
+            let result = await Utilisation.readAll({where: {sessionId: id, usageEndDate: null}});
+            if (result.status === 'success') {
+                let usage = result.result;
+                for (let i = 0; i < usage.length; i++) {
+                    let utilisation = usage[i];
+                    await Utilisation.update(utilisation.id, {usageEndDate: endTime});
+                    // We also set the ressource as available
+                    const Ressource = app.get("Ressource");
+                    await Ressource.free(utilisation.ressourceId);
+                }
+            }
+            result = await this.update(id, {endTime});
+            result = await this.read(id);
+            if (result.status === 'success') {
+                app.emit('sessions',"updated", result.result);
+            }
+            return result;
+            
+        }
+
+
+
+        static async closeAllSessions() {
+            const now = new Date(new Date() - new Date().getTimezoneOffset() * 60 * 1000).toISOString();
+
+            // We get all the active sessions
+            let active_sessions = await this.model.findAll({where: {endTime: null}});
+            // We get the usage of all the active sessions
+            // We close all the active sessions
+            for (let i = 0; i < active_sessions.length; i++) {
+                let session = active_sessions[i];
+                await this.close(session.id, now);
+            }
+            return active_sessions;
+        }
+
     }
 
 

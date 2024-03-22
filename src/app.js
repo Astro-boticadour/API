@@ -1,5 +1,6 @@
 // Importer le module Express
 const express = require('express');
+const cron = require('node-cron');
 const Database = require('./database');
 const Config = require('./config');
 const Utils = require('./utils');
@@ -19,6 +20,7 @@ const Ressource_Controler = require('./controlers/ressource-controler');
 const Session_Controler = require('./controlers/session-controler');
 // const Utilisation_Controler = require('./controlers/utilisation-controler');
 const Data_Controler = require('./controlers/data-controler');
+const Utilisation_Controler = require('./controlers/utilisation-controler');
 
 
 
@@ -61,6 +63,14 @@ module.exports = async function start(){
   await Session_Controler(app);
   // await Utilisation_Controler(app);
   await Data_Controler(app);
+  await Utilisation_Controler(app);
+
+  cron.schedule(app.get('config').app.close_cron, () => {
+    // console.log('Closing all active sessions');
+    Utils.show_log("info","Closing all active sessions","app");
+    app.get('Session').closeAllSessions();
+  });
+  
 
   const port = app.get('config').app.port;
   // Démarrer le serveur et écouter les requêtes sur le port spécifié
@@ -78,6 +88,7 @@ module.exports = async function start(){
   app.use((err, req, res, next) => {if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {Utils.sendResponse(res, 'Invalid JSON', 400)}});
   // If the route does not exist, we send an error response
   app.use((req, res, next) => {if (!res.headersSent) {Utils.sendResponse(res, 'Not found', 404)}
+
   
 
 

@@ -21,6 +21,10 @@ module.exports = async (app) => {
             sendResponse(res, 'Method not allowed', 405);
             return;
         }
+        if (req.method === 'OPTIONS'){
+            sendResponse(res, ["GET","POST","PATCH","DELETE"], 200);
+            return;
+        }
         next();
     });
 
@@ -79,7 +83,6 @@ module.exports = async (app) => {
         }
         else{
             sendResponse(res, result.result, 201);
-            app.emit('users',"created",result.result,req);
         }
         }
     );
@@ -116,7 +119,6 @@ module.exports = async (app) => {
             // We get the user from the database to send it in the response
             let user = await User.read(req.params.login);
             sendResponse(res, user.result, 200);
-            app.emit('users',"updated",user.result,req);
         }
         }
     );
@@ -138,7 +140,6 @@ module.exports = async (app) => {
         }
         else{
             sendResponse(res, {login: req.params.login}, 200);
-            app.emit('users',"deleted",{login: req.params.login},req);
         }
         }
     );

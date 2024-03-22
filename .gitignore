@@ -3,3 +3,4 @@ __pycache__
 *.pyc
 .nyc_output
 nohup.out
+.env

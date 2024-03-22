@@ -5,7 +5,7 @@ const {formatSequelizeResponse,show_check,executeAndFormat} = require('../utils'
 module.exports = async (app) => {
     class Utilisation {
         // We create the model for the utilisation table in the database
-        static model = app.get("db").define('utilisation', {
+        static model = app.get("db").define('utilisations', {
             id: {
                 type: sequelize.INTEGER,
                 primaryKey: true,
@@ -35,7 +35,12 @@ module.exports = async (app) => {
 
         static async create(usageStartDate, usageEndDate, sessionId, ressourceId) {
             // We create a new utilisation in the database
-            return await executeAndFormat(this.model,"create", { usageStartDate, usageEndDate, sessionId, ressourceId });
+            let result = await executeAndFormat(this.model,"create", { usageStartDate, usageEndDate, sessionId, ressourceId });
+            if (result.status === 'success') {
+                result =  await this.read(result.result.id);
+                app.emit('utilisation',"created", result.result);
+            }
+            return result;
         }
 
         static async read(id) {
@@ -44,25 +49,46 @@ module.exports = async (app) => {
 
         }
 
-        static async readAll() {
+        static async readAll(args = {}) {
             // We read all utilisations from the database
-            return await executeAndFormat(this.model,"findAll", {});
+            return await executeAndFormat(this.model,"findAll", args);
         }
 
         static async update(id, data) {
             // We update an utilisation in the database
-            return await executeAndFormat(this.model,"update", data, {where: {id: id}});
+            let result = await executeAndFormat(this.model,"update", data, {where: {id: id}});
+            if (result.status === 'success') {
+                result =  await this.read(id);
+                app.emit('utilisation',"updated", result.result);
+            }
+            return result; 
+
         }
 
         static async delete(id) {
             // We delete a utilisation from the database
-            return await executeAndFormat(this.model,"destroy", {where: {id: id}});
+            let result =  await executeAndFormat(this.model,"destroy", {where: {id: id}});
+            if (result.status === 'success') {
+                id = parseInt(id);
+                app.emit('utilisation',"deleted",  {id : Number(id) });
+            }
+            return result;
+
         }
 
 
         static async exists(id) {
             let utilisation = await this.read(id);
             if (utilisation.result !== null) {
+                return true;
+            }
+            return false;
+        }
+
+
+        static async is_finished(id) {
+            let utilisation = await this.read(id);
+            if (utilisation.result.usageEndDate !== null) {
                 return true;
             }
             return false;
@@ -74,6 +100,10 @@ module.exports = async (app) => {
         // force true will drop the table if it already exists and create a new one
         // alter true will update the table if it already exists 
         // await Utilisation.model.sync({ force: true });
+        const Ressource = app.get('Ressource');
+        const Session = app.get('Session');
+        Utilisation.model.belongsTo(Ressource.model, {foreignKey: 'ressourceId', targetKey: 'id', onDelete: 'cascade'});
+        Utilisation.model.belongsTo(Session.model, {foreignKey: 'sessionId', targetKey: 'id', onDelete: 'cascade'});
         await Utilisation.model.sync({alter: true});
         show_check('Table creation/update [utilisation]','OK');
     } catch (error) {

@@ -23,6 +23,10 @@ module.exports = async (app) => {
             sendResponse(res, 'Method not allowed', 405);
             return;
         }
+        if (req.method === 'OPTIONS'){
+            sendResponse(res, ["GET","POST","PATCH","DELETE"], 200);
+            return;
+        }
         next();
     });
 
@@ -55,29 +59,31 @@ module.exports = async (app) => {
         // We use JOI to validate the request body
         const schema = Joi.object({
             name: Joi.string().max(127).required(),
-            dateDebut: Joi.date().format(['YYYY-MM-DD']).required(),
-            dateFin: Joi.date().format(['YYYY-MM-DD']).required(),
+            startDate: Joi.date().format(['YYYY-MM-DD']).default(null),
+            endDate: Joi.date().format(['YYYY-MM-DD']).default(null),
             isClosed: Joi.boolean(),
             description: Joi.string().max(255)    
         });
         const { error } = schema.validate(req.body);
         // If the request body is not valid, we send an error response
-        if (error) {
+        if(error){
             sendResponse(res, error.details[0].message, 400);
             return;
         }
 
-        req.body.dateFin+= "T23:59:59.999Z";
-        // We check if the dateFin is after the dateDebut
-        if (new Date(req.body.dateDebut) > new Date(req.body.dateFin)){
-            sendResponse(res, 'dateFin must be after dateDebut', 400);
-            return;
+
+        // We check if the endDate is not the default value
+        if (req.body.endDate){
+            req.body.endDate += "T23:59:59.999Z";
         }
 
-
-
-
-        let result = await Project.create(req.body.name, req.body.dateDebut, req.body.dateFin, req.body.description)
+        // We check if the endDate is after the startDate
+        if (new Date(req.body.startDate) > new Date(req.body.endDate)) {
+            sendResponse(res, 'endDate must be after startDate', 400);
+            return;
+        }
+        
+        let result = await Project.create(req.body.name, req.body.startDate, req.body.endDate, req.body.description)
         // If the Project was created, we send a success response, otherwise we send an error response
         // can't test this line because can't find a way to make the database fail
         /* istanbul ignore next */
@@ -86,7 +92,6 @@ module.exports = async (app) => {
         }
         else{
             sendResponse(res, result.result, 201);
-            app.emit('projects',"created",result.result,req);
         }
         }
     );
@@ -96,8 +101,8 @@ module.exports = async (app) => {
         // We use JOI to validate the request body
         const schema = Joi.object({
             name: Joi.string().max(127),
-            dateDebut: Joi.date().format(['YYYY-MM-DD']),
-            dateFin: Joi.date().format(['YYYY-MM-DD']),
+            startDate: Joi.date().format(['YYYY-MM-DD']),
+            endDate: Joi.date().format(['YYYY-MM-DD']),
             isClosed: Joi.boolean(),
             description: Joi.string().max(255)    
         });
@@ -110,22 +115,33 @@ module.exports = async (app) => {
             sendResponse(res, error.details[0].message, 400);
             return;
         }
-
-        if (req.body.dateFin){
-            req.body.dateFin+= "T23:59:59.999Z";
-            // We check if the dateFin is after the dateDebut
-            if (new Date(req.body.dateDebut) > new Date(req.body.dateFin)){
-                sendResponse(res, 'dateFin must be after dateDebut', 400);
-                return;
-            }
-        }
-        
-
         // If the Project does not exist, we send an error response
         if (!await Project.exists(req.params.id)){
             sendResponse(res, 'Project not found', 404);
             return;
         }
+        
+        let p = await Project.read(req.params.id);
+
+
+        if (!req.body.endDate){
+            req.body.endDate = p.result.endDate;
+        }
+        else{
+            req.body.endDate += "T23:59:59.999Z";
+        }
+        if (!req.body.startDate){
+            req.body.startDate = p.result.startDate;
+        }
+
+        // We check if startDate is not after endDate
+        if (new Date(req.body.startDate) > new Date(req.body.endDate)) {
+            sendResponse(res, 'endDate must be after startDate', 400);
+            return;
+        }
+        
+
+
 
         let result = await Project.update(req.params.id, req.body);
         // If the Project was updated, we send a success response, otherwise we send an error response
@@ -138,7 +154,6 @@ module.exports = async (app) => {
             // We get the Project from the database to send it in the response
             let p = await Project.read(req.params.id);
             sendResponse(res, p.result, 200);
-            app.emit('projects',"updated",p.result,req);
         }
         }
     );
@@ -160,7 +175,6 @@ module.exports = async (app) => {
         }
         else{
             sendResponse(res, {id: Number(req.params.id)}, 200);
-            app.emit('projects',"deleted",{id: Number(req.params.id)},req);
         }
         }
     );

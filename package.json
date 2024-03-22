@@ -12,7 +12,6 @@
     "test": "python3 -u tests/tests.py",
     "start": "node src/bin.js",
     "coverage": "NODE_ENV=test ./node_modules/.bin/nyc --check-coverage --statements 97 node src/bin.js"
-
   },
   "dependencies": {
     "@hapi/joi": "^17.1.1",
@@ -22,6 +21,7 @@
     "express-ws": "^5.0.2",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.9.2",
+    "node-cron": "^3.0.3",
     "sequelize": "^6.37.1"
   },
   "devDependencies": {

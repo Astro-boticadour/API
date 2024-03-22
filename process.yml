@@ -1,4 +1,4 @@
 apps:
 - script: ./src/bin.js
-  instances: 4
+  instances: 1
   exec_mode: cluster

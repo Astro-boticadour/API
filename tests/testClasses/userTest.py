@@ -209,7 +209,11 @@ class TestUserRoutes(unittest.TestCase):
         self.assertEqual(res.json()['status'], 'error')
         self.assertEqual(res.json()['message'], 'User not found')
         
-
+    def test_15_check_OPTIONS(self):
+        res = requests.options(BASE_URL + '/users')
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json()['status'], 'success')
+        self.assertEqual(res.json()['result'], ['GET', 'POST','PATCH','DELETE'])
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
