@@ -13,7 +13,6 @@ async function formatSequelizeResponse(response) {
   }
   else if (response instanceof Array) {
       // if the array is empty, we return null
-
         response= { 
           status: 'success',
           result: response.map((item) => item.dataValues)
@@ -163,9 +162,26 @@ function sendResponse(response, data, statusCode) {
 
 }
 
+function convertToTimeZone(dateString) {
+  // Divise la chaîne de caractères en parties: année, mois, jour, heure, minute, seconde
+  const [annee, mois, jour, heure, minute, seconde] = dateString.split(/[- :]/);
+
+  // Crée une nouvelle date en utilisant les parties de la chaîne de caractères
+  // Le mois est 0-indexé en JavaScript, donc on soustrait 1 au mois
+  const dateLocale = new Date(annee, mois - 1, jour, heure, minute, seconde);
+
+  // Obtient le décalage horaire en minutes
+  const offsetMinutes = dateLocale.getTimezoneOffset();
+
+  // Ajoute le décalage horaire pour obtenir la date dans le fuseau horaire local
+  const dateAvecFuseauHoraire = new Date(dateLocale.getTime() - (offsetMinutes * 60 * 1000));
+  return dateAvecFuseauHoraire;
+}
+
 
 module.exports = {
   executeAndFormat,
+  convertToTimeZone,
   formatSequelizeResponse,
   sendResponse,
   formatHTTPResponse,
