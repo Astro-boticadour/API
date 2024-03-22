@@ -15,8 +15,8 @@ global test_id
 class TestProjectRoutes(unittest.TestCase):
     current_test_data = {
         'name': 'Test Project',
-        'dateDebut': '2024-03-17',
-        'dateFin': '2024-03-24',
+        'startDate': '2024-03-17',
+        'endDate': '2024-03-24',
         'isClosed': False,
         'description': 'Test Description'
     }
@@ -46,11 +46,8 @@ class TestProjectRoutes(unittest.TestCase):
         }
         
         for method, endpoint in methods_endpoints.items():
-            # Envoyer la requête sans authentification
             res = requests.request(method, BASE_URL + endpoint)
-            # Assurez-vous que le code de réponse est 401 Unauthorized
             self.assertEqual(res.status_code, 401)
-            # Assurez-vous que le message d'erreur est correct
             self.assertEqual(res.json()['status'], 'error')
             self.assertEqual(res.json()['message'], 'Invalid token')
 
@@ -59,15 +56,17 @@ class TestProjectRoutes(unittest.TestCase):
         res = requests.put(BASE_URL + '/projects')
         self.assertEqual(res.status_code, 405)
 
-    def test_03_create_project_with_missing_fields(self):
+    def test_03_create_project_with_missing_fields_should_return_400(self):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
 
         # Données de test fournies
         current_keys = []
         current_test_data = self.current_test_data.copy()
-        # On enleve le champs description et isClosed vu qu'ils sont optionnels
+        # On enleve le champs description et isClosed, startDate, endDate qui sont pas obligatoire
         current_test_data.pop('description')
         current_test_data.pop('isClosed')
+        current_test_data.pop('startDate')
+        current_test_data.pop('endDate')
         missing_keys = list(current_test_data.keys())
         current_keys = []
 
@@ -79,7 +78,7 @@ class TestProjectRoutes(unittest.TestCase):
             current_keys.append(missing_keys[0])
             missing_keys.pop(0)
         
-    def test_04_create_project_with_extra_fields_should_not_work(self):
+    def test_04_create_project_with_extra_fields_should_return_400(self):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
         current_test_data = self.current_test_data.copy()
         current_test_data['extra'] = 'extra'
@@ -88,19 +87,19 @@ class TestProjectRoutes(unittest.TestCase):
         self.assertEqual(res.json()['status'], 'error')
         self.assertEqual(res.json()['message'], '\"extra\" is not allowed')
 
-    def test_05_create_project_with_invalid_date(self):
+    def test_05_create_project_with_endDate_before_startDate_should_return_400(self):
         # On tests le cas ou DateDebut < DateFin
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
         current_test_data = self.current_test_data.copy()
-        current_test_data['dateDebut'] = '2024-03-24'
-        current_test_data['dateFin'] = '2024-03-17'
+        current_test_data['startDate'] = '2024-03-24'
+        current_test_data['endDate'] = '2024-03-17'
         res = requests.post(BASE_URL + '/projects', headers
         ={'Authorization': ADMIN_AUTH_HEADER}, json=current_test_data)
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res.json()['status'], 'error')
-        self.assertEqual(res.json()['message'], 'dateFin must be after dateDebut')
+        self.assertEqual(res.json()['message'], 'endDate must be after startDate')
 
-    def test_06_create_project(self):
+    def test_06_create_project_with_valid_data_should_return_201(self):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
         # Testez l'accès authentifié au point de terminaison POST /projects
         res = requests.post(BASE_URL + '/projects', headers={'Authorization': ADMIN_AUTH_HEADER}, json=self.current_test_data)
@@ -109,6 +108,18 @@ class TestProjectRoutes(unittest.TestCase):
         self.assertEqual(res.json()['result']['name'], 'Test Project')
         global test_id
         test_id = str(res.json()['result']['id'])
+
+        # Check if the websocket received the message
+        time.sleep(1)
+        self.assertEqual(self.ws.latest_message['reason'], 'created')
+        self.assertEqual(self.ws.latest_message['data']['name'], 'Test Project')
+        self.assertEqual(self.ws.latest_message['data']['id'], int(test_id))
+        self.assertEqual(self.ws.latest_message['data']['startDate'], '2024-03-17T00:00:00.000Z')
+        self.assertEqual(self.ws.latest_message['data']['endDate'], '2024-03-24T23:59:59.000Z')
+        self.ws.latest_message = None
+
+
+
 
     def test_07_get_all_projects(self):
         # Testez l'accès authentifié au point de terminaison GET /projects
@@ -147,6 +158,14 @@ class TestProjectRoutes(unittest.TestCase):
         self.assertEqual(res.json()['result']['name'], 'Updated Test Project')
         self.assertEqual(res.json()['result']['id'], int(test_id))
 
+        # Check if the websocket received the message
+        time.sleep(1)
+        self.assertEqual(self.ws.latest_message['reason'], 'updated')
+        self.assertEqual(self.ws.latest_message['data']['name'], 'Updated Test Project')
+        self.assertEqual(self.ws.latest_message['data']['id'], int(test_id))
+        self.ws.latest_message = None
+
+
     def test_11_authenticated_access_to_patch_endpoint_not_found(self):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
         # Testez l'accès authentifié au point de terminaison PATCH /projects
@@ -161,12 +180,12 @@ class TestProjectRoutes(unittest.TestCase):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
         # Testez l'accès authentifié au point de terminaison PATCH /projects
         res = requests.patch(BASE_URL + '/projects/'+test_id, headers={'Authorization': ADMIN_AUTH_HEADER}, json={
-            'dateDebut': '2024-03-24',
-            'dateFin': '2024-03-17'
+            'startDate': '2024-03-24',
+            'endDate': '2024-03-17'
         })
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res.json()['status'], 'error')
-        self.assertEqual(res.json()['message'], 'dateFin must be after dateDebut')
+        self.assertEqual(res.json()['message'], 'endDate must be after startDate')
 
     def test_13_authenticated_access_to_delete_endpoint(self):
         global test_id
@@ -177,6 +196,13 @@ class TestProjectRoutes(unittest.TestCase):
         self.assertEqual(res.json()['status'], 'success')
         self.assertEqual(res.json()['result']['id'], int(test_id))
 
+        # Check if the websocket received the message
+        time.sleep(1)
+        self.assertEqual(self.ws.latest_message['reason'], 'deleted')
+        self.assertEqual(self.ws.latest_message['data']['id'], int(test_id))
+        self.ws.latest_message = None
+
+
     def test_14_authenticated_access_to_delete_endpoint_not_found(self):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
         # Testez l'accès authentifié au point de terminaison DELETE /projects
@@ -184,6 +210,73 @@ class TestProjectRoutes(unittest.TestCase):
         self.assertEqual(res.status_code, 404)
         self.assertEqual(res.json()['status'], 'error')
         self.assertEqual(res.json()['message'], 'Project not found')
+
+    def test_15_create_project_with_no_startDate_should_default_to_None(self):
+        ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
+        current_test_data = self.current_test_data.copy()
+        current_test_data.pop('startDate')
+        res = requests.post(BASE_URL + '/projects', headers={'Authorization': ADMIN_AUTH_HEADER}, json=current_test_data)
+        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res.json()['status'], 'success')
+        self.assertEqual(res.json()['result']['startDate'], None)
+        # Check if the websocket received the message
+        time.sleep(1)
+        self.assertEqual(self.ws.latest_message['reason'], 'created')
+        self.assertEqual(self.ws.latest_message['data']['startDate'], None)
+        self.assertEqual(self.ws.latest_message['data']['endDate'], '2024-03-24T23:59:59.000Z')
+        self.assertEqual(self.ws.latest_message['data']['name'], 'Test Project')
+        self.ws.latest_message = None
+
+
+        # Delete the project created
+        project_id = res.json()['result']['id']
+        res = requests.delete(BASE_URL + '/projects/'+str(project_id), headers={'Authorization': ADMIN_AUTH_HEADER})
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json()['status'], 'success')
+        self.assertEqual(res.json()['result']['id'], project_id)
+        # Check if the websocket received the message
+        time.sleep(1)
+        self.assertEqual(self.ws.latest_message['reason'], 'deleted')
+        self.assertEqual(self.ws.latest_message['data']['id'], project_id)
+        self.ws.latest_message = None
+
+
+    
+    def test_16_create_project_with_no_endDate_should_default_to_None(self):
+        ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
+        current_test_data = self.current_test_data.copy()
+        current_test_data.pop('endDate')
+        res = requests.post(BASE_URL + '/projects', headers={'Authorization': ADMIN_AUTH_HEADER}, json=current_test_data)
+        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res.json()['status'], 'success')
+        self.assertEqual(res.json()['result']['endDate'], None)
+        # Check if the websocket received the message
+        time.sleep(1)
+        self.assertEqual(self.ws.latest_message['reason'], 'created')
+        self.assertEqual(self.ws.latest_message['data']['endDate'], None)
+        self.assertEqual(self.ws.latest_message['data']['startDate'], '2024-03-17T00:00:00.000Z')
+        self.assertEqual(self.ws.latest_message['data']['name'], 'Test Project')
+        self.ws.latest_message = None
+
+        # Delete the project created
+        project_id = res.json()['result']['id']
+        res = requests.delete(BASE_URL + '/projects/'+str(project_id), headers={'Authorization': ADMIN_AUTH_HEADER})
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json()['status'], 'success')
+        self.assertEqual(res.json()['result']['id'], project_id)
+        # Check if the websocket received the message
+        time.sleep(1)
+        self.assertEqual(self.ws.latest_message['reason'], 'deleted')
+        self.assertEqual(self.ws.latest_message['data']['id'], project_id)
+        self.ws.latest_message = None
+
+    def test_17_check_OPTIONS(self):
+        res = requests.options(BASE_URL + '/projects')
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json()['status'], 'success')
+        self.assertEqual(res.json()['result'], ['GET', 'POST','PATCH','DELETE'])
+
+
     
 
 

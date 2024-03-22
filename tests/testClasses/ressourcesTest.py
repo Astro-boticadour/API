@@ -151,11 +151,11 @@ class TestRessourcesRoutes(unittest.TestCase):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
         # Testez l'accès authentifié au point de terminaison PATCH /ressources
         res = requests.patch(BASE_URL + f'/ressources/{test_id}', headers={'Authorization': ADMIN_AUTH_HEADER}, json={
-            'isUsed': 'invalid'
+            'name': 1
         })
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res.json()['status'], 'error')
-        self.assertEqual(res.json()['message'], '"isUsed" must be a boolean')
+        self.assertEqual(res.json()['message'], '"name" must be a string')
 
     def test_11_authenticated_access_to_delete_endpoint(self):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
@@ -171,6 +171,44 @@ class TestRessourcesRoutes(unittest.TestCase):
         self.assertEqual(self.ws.latest_message['reason'], 'deleted')
         self.assertEqual(self.ws.latest_message['data']['id'], test_id)
         self.ws.latest_message = None
+
+    def test_13_create_ressources_for_later_tests(self):
+        ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
+        first_ressource = {
+            'name': 'First Ressource',
+            'model': 'First Model',
+            'type': 'First Type',
+        }
+        res = requests.post(BASE_URL + '/ressources', headers
+        ={'Authorization': ADMIN_AUTH_HEADER}, json=first_ressource)
+        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res.json()['status'], 'success')
+        self.assertEqual(res.json()['result']['name'], 'First Ressource')
+        self.assertEqual(res.json()['result']['model'], 'First Model')
+        self.assertEqual(res.json()['result']['type'], 'First Type')
+        self.assertEqual(res.json()['result']['isUsed'], False)
+        config.first_ressource_id = res.json()['result']['id']
+
+        second_ressource = {
+            'name': 'Second Ressource',
+            'model': 'Second Model',
+            'type': 'Second Type',
+        }
+        res = requests.post(BASE_URL + '/ressources', headers
+        ={'Authorization': ADMIN_AUTH_HEADER}, json=second_ressource)
+        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res.json()['status'], 'success')
+        self.assertEqual(res.json()['result']['name'], 'Second Ressource')
+        self.assertEqual(res.json()['result']['model'], 'Second Model')
+        self.assertEqual(res.json()['result']['type'], 'Second Type')
+        self.assertEqual(res.json()['result']['isUsed'], False)
+        config.second_ressource_id = res.json()['result']['id']
+
+    def test_14_check_OPTIONS(self):
+        res = requests.options(BASE_URL + '/ressources')
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json()['status'], 'success')
+        self.assertEqual(res.json()['result'], ['GET', 'POST','PATCH','DELETE'])
 
 
 

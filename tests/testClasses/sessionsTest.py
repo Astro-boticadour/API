@@ -69,18 +69,19 @@ class TestSessionRoutes(unittest.TestCase):
         res = requests.post(BASE_URL + '/sessions', headers
         ={'Authorization': ADMIN_AUTH_HEADER}, json={'startTime': '2021-12-12 12:12:12', 'idProject': 404, 'loginUser': 'admin'})
         self.assertEqual(res.json()['message'], 'Project not found')
-        # create a project to test the next test
-        res = requests.post(BASE_URL + '/projects', headers
-        ={'Authorization': ADMIN_AUTH_HEADER}, json={'name': 'TestProject', 'dateDebut': '2021-12-12', 'dateFin': '2021-12-12'})
-        self.assertEqual(res.status_code, 201)
-        project_id = res.json()['result']['id']
-        userLogin = config.userLogin
-        config.project_id = project_id
 
     def test_08_create_session_with_invalid_loginUser_should_not_work(self):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
         project_id = config.project_id
         userLogin = config.userLogin
+        # create a project to test the next test
+        res = requests.post(BASE_URL + '/projects', headers
+        ={'Authorization': ADMIN_AUTH_HEADER}, json={'name': 'TestProject', 'startDate': '2021-12-12', 'endDate': '2021-12-12'})
+        self.assertEqual(res.status_code, 201)
+        project_id = res.json()['result']['id']
+        userLogin = config.userLogin
+        config.project_id = project_id
+
         # There is no user with login "404"
         res = requests.post(BASE_URL + '/sessions', headers
         ={'Authorization': ADMIN_AUTH_HEADER}, json={'startTime': '2021-12-12 12:12:12', 'idProject': project_id, 'loginUser': '404'})
@@ -279,13 +280,106 @@ class TestSessionRoutes(unittest.TestCase):
         self.assertEqual(res.json()['status'], 'success')
         self.assertEqual(res.json()['result'], None)
     
-
-
+    def test_27_create_session_for_later(self):
+        ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
+        res = requests.post(BASE_URL + '/sessions', headers
+        =
+        {'Authorization': ADMIN_AUTH_HEADER}, json={'startTime': '2024-02-12 12:12:12', 'idProject': config.project_id, 'loginUser': config.userLogin})
+        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res.json()['status'], 'success')
+        self.assertEqual(res.json()['result']['projectId'], config.project_id)
+        self.assertEqual(res.json()['result']['userLogin'], config.userLogin)
+        config.session_id = res.json()['result']['id']
+        time.sleep(0.2)
+        self.assertEqual(self.ws.latest_message['reason'], 'created')
+        self.assertEqual(self.ws.latest_message['data']['projectId'], config.project_id)
+        self.assertEqual(self.ws.latest_message['data']['userLogin'], config.userLogin)
+        self.assertEqual(self.ws.latest_message['data']['id'], config.session_id)
+        self.ws.latest_message = None
         
-        
+    def test_28_check_OPTIONS(self):
+        res = requests.options(BASE_URL + '/sessions')
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json()['status'], 'success')
+        self.assertEqual(res.json()['result'], ['GET', 'POST','PATCH','DELETE'])
 
-
+    def test_29_get_all_sessions(self):
+        res = requests.get(BASE_URL + '/sessions')
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json()['status'], 'success')
+        self.assertTrue('result' in res.json())
+        self.assertTrue(isinstance(res.json()['result'], list))
+        self.assertTrue('id' in res.json()['result'][0])
+        self.assertTrue('startTime' in res.json()['result'][0])
+        self.assertTrue('endTime' in res.json()['result'][0])
+        self.assertTrue('projectId' in res.json()['result'][0])
+        self.assertTrue('userLogin' in res.json()['result'][0])
     
+    def test_30_get_session_by_id(self):
+        res = requests.get(BASE_URL + '/sessions/' + str(config.session_id))
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json()['status'], 'success')
+        self.assertTrue('result' in res.json())
+        self.assertTrue('id' in res.json()['result'])
+        self.assertTrue('startTime' in res.json()['result'])
+        self.assertTrue('endTime' in res.json()['result'])
+        self.assertTrue('projectId' in res.json()['result'])
+        self.assertTrue('userLogin' in res.json()['result'])
+        self.assertEqual(res.json()['result']['id'], config.session_id)
+
+    def test_31_get_session_by_invalid_id(self):
+        res = requests.get(BASE_URL + '/sessions/0')
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.json()['status'], 'error')
+        self.assertEqual(res.json()['message'], 'Session not found')
+    
+    def test_32_update_session_with_invalid_id(self):
+        ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
+        res = requests.patch(BASE_URL + '/sessions/0', headers
+        ={'Authorization': ADMIN_AUTH_HEADER}, json={'endTime': '2024-12-12 12:15:13'})
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.json()['status'], 'error')
+        self.assertEqual(res.json()['message'], 'Session not found')
+    
+    def test_33_get_active_session_from_not_existing_user(self):
+        res = requests.get(BASE_URL + '/sessions/activeSession/notExistingUser')
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.json()['status'], 'error')
+        self.assertEqual(res.json()['message'], 'User not found')
+
+
+    def test_35_get_active_session_from_existing_user_with_session(self):
+        res = requests.get(BASE_URL + '/sessions/activeSession/' + config.userLogin)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json()['status'], 'success')
+        self.assertEqual(res.json()['result']['userLogin'], config.userLogin)
+        self.assertEqual(res.json()['result']['projectId'], config.project_id)
+        self.assertEqual(res.json()['result']['id'], config.session_id)
+
+
+    def test_36_get_all_sessions_from_user(self):
+        user_id = config.userLogin
+        res = requests.get(BASE_URL + f'/sessions/allFromUser/' + user_id)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json()['status'], 'success')
+        self.assertTrue('result' in res.json())
+        self.assertTrue(isinstance(res.json()['result'], list))
+        self.assertTrue(res.json()['result'][0]['userLogin'], user_id)
+
+
+    def test_37_get_all_sessions_from_user_not_existing(self):
+        user_id = 'notExistingUser'
+        res = requests.get(BASE_URL + f'/sessions/allFromUser/' + user_id)
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.json()['status'], 'error')
+        self.assertEqual(res.json()['message'], 'User not found')
+    
+    def test_38_get_usage_from_session(self):
+        res = requests.get(BASE_URL + '/sessions/usage/'+str(config.session_id))
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json()['status'], 'success')
+        self.assertTrue('result' in res.json())
+        print(res.json()['result'])
 
 
 
