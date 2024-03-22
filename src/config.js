@@ -6,7 +6,7 @@ module.exports = async (app) => {
       port: process.env.PORT || 3000,
       env: process.env.NODE_ENV || 'development',
       // The cron pattern to close all active sessions
-      close_cron: process.env.CLOSE_CRON || '1 21 * * *',
+      close_cron: process.env.CLOSE_CRON || '0 23 * * *',
     },
 
     
