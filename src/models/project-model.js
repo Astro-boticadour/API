@@ -18,13 +18,11 @@ module.exports = async (app) => {
             },
             startDate: {
                 type: sequelize.DATE,
-                defaultValue: "0000-01-01",
-                allowNull: false
+                allowNull: true
             },
             endDate: {
                 type: sequelize.DATE,
-                defaultValue: "0000-01-01",
-                allowNull: false
+                allowNull: true
             },
             isClosed: {
                 type: sequelize.BOOLEAN,
@@ -78,7 +76,7 @@ module.exports = async (app) => {
             // // We delete a project from the database
             let result = await executeAndFormat(this.model,"destroy", {where: {id: id}});
             if (result.status === 'success') {
-                app.emit('projects',"deleted", {id});
+                app.emit('projects',"deleted", {id : Number(id) });
             }
             return result;
 

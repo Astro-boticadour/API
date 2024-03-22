@@ -35,9 +35,9 @@ module.exports = async (app) => {
             return await executeAndFormat(this.model,"findByPk", login);
         }
 
-        static async readAll() {
+        static async readAll(args={}) {
             // We read all admins from the database
-            return await executeAndFormat(this.model,"findAll", {});
+            return await executeAndFormat(this.model,"findAll", args);
         }
 
         static async update(login, data) {

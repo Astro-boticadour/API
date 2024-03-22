@@ -71,7 +71,7 @@ module.exports = async (app) => {
             // We delete a session from the database
             let result = await executeAndFormat(this.model,"destroy", {where: {id: id}});
             if (result.status === 'success') {
-                app.emit('sessions',"deleted", {id});
+                app.emit('sessions',"deleted",  {id : Number(id) });
             }
             return result;
         }
@@ -105,6 +105,43 @@ module.exports = async (app) => {
             }
             return formatSequelizeResponse(result);
         }
+
+        static async readAllFromUser(login) {
+            // We read all sessions from the database
+            return await executeAndFormat(this.model,"findAll", {where: {userLogin: login}});
+        }
+
+        static async get_session_usage(sessionId) {
+            const Utilisation = app.get("Utilisation");
+            let result = await Utilisation.readAll({where: {sessionId: sessionId, usageEndDate: null}});
+            return result;
+        }
+
+        static async closeAllSessions() {
+            const now = new Date(new Date() - new Date().getTimezoneOffset() * 60 * 1000).toISOString()
+
+            //We get all the active sessions
+            let active_sessions = await this.model.findAll({where: {endTime: null}});
+            // We get the usage of all the active sessions
+            const Utilisation = app.get("Utilisation");
+            for (let i = 0; i < active_sessions.length; i++) {
+                let session = active_sessions[i];
+                let result = await Utilisation.readAll({where: {sessionId: session.id, usageEndDate: null}});
+                if (result.status === 'success') {
+                    let usage = result.result;
+                    for (let j = 0; j < usage.length; j++) {
+                        let utilisation = usage[j];
+                        await Utilisation.update(utilisation.id, {usageEndDate: now});
+                        // We also set the ressource as available
+                        const Ressource = app.get("Ressource");
+                        await Ressource.free(utilisation.ressourceId);
+                    }
+                }
+            }
+            // We close all the active sessions
+            return await executeAndFormat(this.model,"update", {endTime: now}, {where: {endTime: null}});
+        }
+
     }
 
 

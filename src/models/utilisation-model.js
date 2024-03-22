@@ -50,9 +50,7 @@ module.exports = async (app) => {
         }
 
         static async readAll(args = {}) {
-        static async readAll(args={}) {
             // We read all utilisations from the database
-            return await executeAndFormat(this.model,"findAll", args);
             return await executeAndFormat(this.model,"findAll", args);
         }
 
@@ -71,7 +69,8 @@ module.exports = async (app) => {
             // We delete a utilisation from the database
             let result =  await executeAndFormat(this.model,"destroy", {where: {id: id}});
             if (result.status === 'success') {
-                app.emit('utilisation',"deleted", {id});
+                id = parseInt(id);
+                app.emit('utilisation',"deleted",  {id : Number(id) });
             }
             return result;
 

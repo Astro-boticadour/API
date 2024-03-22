@@ -50,7 +50,7 @@ module.exports = async (app) => {
 
         static async readAll(args={}) {
             // We read all projects from the database
-            return await executeAndFormat(this.model,"findAll", {});
+            return await executeAndFormat(this.model,"findAll", args);
         }
 
         static async update(id, data) {
@@ -68,7 +68,7 @@ module.exports = async (app) => {
             // We delete a ressource from the database
             let result = await executeAndFormat(this.model,"destroy", {where: {id: id}});
             if (result.status === 'success') {
-                app.emit('ressources',"deleted", id);
+                app.emit('ressources',"deleted",  {id : Number(id) });
             }
             return result;
             
