@@ -9,7 +9,6 @@ WORKDIR /express-docker
 
 # Copying all the files in our project
 COPY . .
-COPY ./src ./src
 # Installing dependencies
 RUN npm install
 

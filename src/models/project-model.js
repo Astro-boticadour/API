@@ -55,9 +55,9 @@ module.exports = async (app) => {
 
         }
 
-        static async readAll() {
+        static async readAll(args={}) {
             // We read all projects from the database
-            return await executeAndFormat(this.model,"findAll", {});
+            return await executeAndFormat(this.model,"findAll", args);
 
         }
 

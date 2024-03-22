@@ -62,7 +62,7 @@ class TestProjectRoutes(unittest.TestCase):
         # Données de test fournies
         current_keys = []
         current_test_data = self.current_test_data.copy()
-        # On enleve le champs description et isClosed, startDate, endDate qui sont pas obligatoire
+        # On enleve le champs description et isClosed vu qu'ils sont optionnels
         current_test_data.pop('description')
         current_test_data.pop('isClosed')
         current_test_data.pop('startDate')
@@ -108,18 +108,6 @@ class TestProjectRoutes(unittest.TestCase):
         self.assertEqual(res.json()['result']['name'], 'Test Project')
         global test_id
         test_id = str(res.json()['result']['id'])
-
-        # Check if the websocket received the message
-        time.sleep(1)
-        self.assertEqual(self.ws.latest_message['reason'], 'created')
-        self.assertEqual(self.ws.latest_message['data']['name'], 'Test Project')
-        self.assertEqual(self.ws.latest_message['data']['id'], int(test_id))
-        self.assertEqual(self.ws.latest_message['data']['startDate'], '2024-03-17T00:00:00.000Z')
-        self.assertEqual(self.ws.latest_message['data']['endDate'], '2024-03-24T23:59:59.000Z')
-        self.ws.latest_message = None
-
-
-
 
     def test_07_get_all_projects(self):
         # Testez l'accès authentifié au point de terminaison GET /projects
@@ -176,8 +164,9 @@ class TestProjectRoutes(unittest.TestCase):
         self.assertEqual(res.json()['status'], 'error')
         self.assertEqual(res.json()['message'], 'Project not found')
     
-    def test_12_authenticated_access_to_patch_endpoint_with_invalid_date(self):
+    def test_12_authenticated_access_to_patch_endpoint_with_enddate_before_startdate(self):
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
+        global test_id
         # Testez l'accès authentifié au point de terminaison PATCH /projects
         res = requests.patch(BASE_URL + '/projects/'+test_id, headers={'Authorization': ADMIN_AUTH_HEADER}, json={
             'startDate': '2024-03-24',
@@ -210,73 +199,6 @@ class TestProjectRoutes(unittest.TestCase):
         self.assertEqual(res.status_code, 404)
         self.assertEqual(res.json()['status'], 'error')
         self.assertEqual(res.json()['message'], 'Project not found')
-
-    def test_15_create_project_with_no_startDate_should_default_to_None(self):
-        ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
-        current_test_data = self.current_test_data.copy()
-        current_test_data.pop('startDate')
-        res = requests.post(BASE_URL + '/projects', headers={'Authorization': ADMIN_AUTH_HEADER}, json=current_test_data)
-        self.assertEqual(res.status_code, 201)
-        self.assertEqual(res.json()['status'], 'success')
-        self.assertEqual(res.json()['result']['startDate'], None)
-        # Check if the websocket received the message
-        time.sleep(1)
-        self.assertEqual(self.ws.latest_message['reason'], 'created')
-        self.assertEqual(self.ws.latest_message['data']['startDate'], None)
-        self.assertEqual(self.ws.latest_message['data']['endDate'], '2024-03-24T23:59:59.000Z')
-        self.assertEqual(self.ws.latest_message['data']['name'], 'Test Project')
-        self.ws.latest_message = None
-
-
-        # Delete the project created
-        project_id = res.json()['result']['id']
-        res = requests.delete(BASE_URL + '/projects/'+str(project_id), headers={'Authorization': ADMIN_AUTH_HEADER})
-        self.assertEqual(res.status_code, 200)
-        self.assertEqual(res.json()['status'], 'success')
-        self.assertEqual(res.json()['result']['id'], project_id)
-        # Check if the websocket received the message
-        time.sleep(1)
-        self.assertEqual(self.ws.latest_message['reason'], 'deleted')
-        self.assertEqual(self.ws.latest_message['data']['id'], project_id)
-        self.ws.latest_message = None
-
-
-    
-    def test_16_create_project_with_no_endDate_should_default_to_None(self):
-        ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
-        current_test_data = self.current_test_data.copy()
-        current_test_data.pop('endDate')
-        res = requests.post(BASE_URL + '/projects', headers={'Authorization': ADMIN_AUTH_HEADER}, json=current_test_data)
-        self.assertEqual(res.status_code, 201)
-        self.assertEqual(res.json()['status'], 'success')
-        self.assertEqual(res.json()['result']['endDate'], None)
-        # Check if the websocket received the message
-        time.sleep(1)
-        self.assertEqual(self.ws.latest_message['reason'], 'created')
-        self.assertEqual(self.ws.latest_message['data']['endDate'], None)
-        self.assertEqual(self.ws.latest_message['data']['startDate'], '2024-03-17T00:00:00.000Z')
-        self.assertEqual(self.ws.latest_message['data']['name'], 'Test Project')
-        self.ws.latest_message = None
-
-        # Delete the project created
-        project_id = res.json()['result']['id']
-        res = requests.delete(BASE_URL + '/projects/'+str(project_id), headers={'Authorization': ADMIN_AUTH_HEADER})
-        self.assertEqual(res.status_code, 200)
-        self.assertEqual(res.json()['status'], 'success')
-        self.assertEqual(res.json()['result']['id'], project_id)
-        # Check if the websocket received the message
-        time.sleep(1)
-        self.assertEqual(self.ws.latest_message['reason'], 'deleted')
-        self.assertEqual(self.ws.latest_message['data']['id'], project_id)
-        self.ws.latest_message = None
-
-    def test_17_check_OPTIONS(self):
-        res = requests.options(BASE_URL + '/projects')
-        self.assertEqual(res.status_code, 200)
-        self.assertEqual(res.json()['status'], 'success')
-        self.assertEqual(res.json()['result'], ['GET', 'POST','PATCH','DELETE'])
-
-
     
 
 

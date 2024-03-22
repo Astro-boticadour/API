@@ -12,6 +12,29 @@ BASE_URL = config.BASE_URL
 
 
 class TestGeneral(unittest.TestCase):
+
+    def test_00_delete_all_test_objects(self):
+        ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
+        users=["temp_user",config.userLogin]
+
+        for user in users:
+            res = requests.delete(BASE_URL + '/users/' + user, headers={'Authorization': ADMIN_AUTH_HEADER})
+            self.assertEqual(res.status_code, 200)
+            self.assertEqual(res.json()['status'], 'success')
+        
+        #Delete the project
+        res = requests.delete(BASE_URL + '/projects/' + str(config.project_id), headers={'Authorization': ADMIN_AUTH_HEADER})
+        self.assertEqual(res.status_code, 200)
+
+        #Delete the first ressource
+        res = requests.delete(BASE_URL + '/ressources/' + str(config.first_ressource_id), headers={'Authorization': ADMIN_AUTH_HEADER})
+        self.assertEqual(res.status_code, 200)
+
+        #Delete the second ressource
+        res = requests.delete(BASE_URL + '/ressources/' + str(config.second_ressource_id), headers={'Authorization': ADMIN_AUTH_HEADER})
+        self.assertEqual(res.status_code, 200)
+
+
     
     def test_01_invalid_route_should_return_404(self):
         res = requests.post(BASE_URL + '/invalidroute')
