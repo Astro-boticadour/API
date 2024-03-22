@@ -12,14 +12,19 @@ async function formatSequelizeResponse(response) {
     }
   }
   else if (response instanceof Array) {
-      // if the array is empty, we return null
-
+      keys = Object.keys(response[0]);
+      if (!keys.includes('dataValues')) {
+        response= { 
+          status: 'success',
+          result: response
+        }
+      } else {
         response= { 
           status: 'success',
           result: response.map((item) => item.dataValues)
-        } 
+        }
+      }
       
-
     }
   else if (response instanceof Object) {
         response= {
@@ -68,6 +73,9 @@ async function executeAndFormat(model,action, ...args) {
               break;
           case 'destroy':
               result = await model.destroy(...args);
+              break;
+          case 'query':
+              result = await model.query(...args);
               break;
       }
   }

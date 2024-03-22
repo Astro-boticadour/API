@@ -66,11 +66,7 @@ module.exports = async (app) => {
                 return true;
             }
             return false;
-
         }
-
-
-
     }
 
     // We create or update the table in the database

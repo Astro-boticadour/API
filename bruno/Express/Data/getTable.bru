@@ -1,0 +1,21 @@
+meta {
+  name: getTable
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{Base_URL}}/data
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "firstObjectType" : "user",
+    "firstFieldId" : "pierre.david",
+    "secondaryObjectType" : "project",
+    "month" : 1,
+    "year" : 2024
+  }
+}

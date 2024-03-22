@@ -10,6 +10,7 @@ const Project = require('./models/project-model');
 const Ressource = require('./models/ressource-model');
 const Session = require('./models/session-model');
 const Utilisation = require('./models/utilisation-model');
+const Data = require('./models/data-model');
 
 const User_Controler = require('./controlers/user-controler');
 const Admin_Controler = require('./controlers/admin-controler');
@@ -17,6 +18,7 @@ const Project_Controler = require('./controlers/project-controler');
 const Ressource_Controler = require('./controlers/ressource-controler');
 const Session_Controler = require('./controlers/session-controler');
 // const Utilisation_Controler = require('./controlers/utilisation-controler');
+const Data_Controler = require('./controlers/data-controler');
 
 
 
@@ -44,6 +46,7 @@ module.exports = async function start(){
   await Ressource(app);
   await Session(app);
   await Utilisation(app);
+  await Data(app);
 
 
   // We want to execute some inner code that is not accessible from the routes, so that the coverage is 100%
@@ -57,6 +60,7 @@ module.exports = async function start(){
   await Ressource_Controler(app);
   await Session_Controler(app);
   // await Utilisation_Controler(app);
+  await Data_Controler(app);
 
   const port = app.get('config').app.port;
   // Démarrer le serveur et écouter les requêtes sur le port spécifié
