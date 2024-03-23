@@ -1,4 +1,4 @@
-const {sendResponse} = require('../utils');
+const {sendResponse,formatHTTPResponse} = require('../utils');
 const Joi = require('@hapi/joi');
 
 
@@ -28,11 +28,12 @@ module.exports = async (app) => {
             return;
         }
         let result = await Data.get_item_timesheet(req.body.firstObjectType, req.body.firstFieldId, req.body.secondaryObjectType, req.body.month, req.body.year);
+        result = formatHTTPResponse(result);
         if (result.status === "error") {
             sendResponse(res, result.message, 500);
             return;
         }
-        sendResponse(res, result.result, 200);
+        sendResponse(res,result.result, 200);
     }
     );
 }

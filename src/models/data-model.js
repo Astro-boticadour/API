@@ -1,5 +1,5 @@
 const sequelize = require('sequelize');
-const {formatSequelizeResponse,show_check,executeAndFormat} = require('../utils');
+const {formatSequelizeResponse,show_check, formatHTTPResponse} = require('../utils');
 
 
 module.exports = async (app) => {
@@ -60,7 +60,7 @@ module.exports = async (app) => {
         GROUP BY
             ajout_du_jour.user_login, ajout_du_jour.project_name, ajout_du_jour.jour_du_mois;`;
             
-            let result = await executeAndFormat(this.database, "query", query);
+            let result = await this.database.query(query, { type: sequelize.QueryTypes.SELECT });
             return result;
         }
 

@@ -12,18 +12,11 @@ async function formatSequelizeResponse(response) {
     }
   }
   else if (response instanceof Array) {
-      keys = Object.keys(response[0]);
-      if (!keys.includes('dataValues')) {
-        response= { 
-          status: 'success',
-          result: response
-        }
-      } else {
       // if the array is empty, we return null
         response= { 
           status: 'success',
           result: response.map((item) => item.dataValues)
-        }
+        
       }
       
     }
