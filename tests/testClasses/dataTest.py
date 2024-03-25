@@ -33,6 +33,13 @@ class TestDataRoutes(unittest.TestCase):
         self.assertEqual(res.json()['status'], 'success')
         self.assertIsInstance(res.json()['result'], list)
         
+    def test_04_not_allowed_method_for_post(self):
+        not_allowed_methods = ['POST','PUT', 'PATCH', 'DELETE']
+        for method in not_allowed_methods:
+            res = requests.request(method, BASE_URL + '/data')
+            self.assertEqual(res.status_code, 405)
+            self.assertEqual(res.json()['status'], 'error')
+            self.assertEqual(res.json()['message'], 'Method not allowed')
         
 
 

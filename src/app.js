@@ -83,7 +83,10 @@ module.exports = async function start(){
   app.get('/healthcheck', (req, res, next) => {Utils.sendResponse(res, 'Service is healthy', 200)});
   app.get('/coffee', (req, res, next) => {Utils.sendResponse(res, 'no coffee available', 418)});
   // if we are in development mode, we allow a route /shutdown to stop the server
-  if (app.get('config').app.env !== 'production') app.post('/shutdown', (req, res, next) => { ; Utils.sendResponse(res, 'Service is shutting down', 200);Utils.show_log('info','Service is shutting down',"app"); process.exit(0); });
+  if (app.get('config').app.env !== 'production') app.post('/shutdown', (req, res, next) => {
+    Utils.sendResponse(res, 'Service is shutting down', 200)
+    Utils.show_log('info','Service is shutting down',"app")
+    process.exit(0); });
   // If the json is not parsable, we send an error response
   app.use((err, req, res, next) => {if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {Utils.sendResponse(res, 'Invalid JSON', 400)}});
   // If the route does not exist, we send an error response

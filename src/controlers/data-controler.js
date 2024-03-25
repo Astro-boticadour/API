@@ -4,7 +4,7 @@ const Joi = require('@hapi/joi');
 
 module.exports = async (app) => {
     const Data = app.get("Data");
-    app.use('/login', async (req, res, next) => {
+    app.use('/data', async (req, res, next) => {
         if (['POST','PUT', 'PATCH', 'DELETE'].includes(req.method)) {
             sendResponse(res, 'Method not allowed', 405);
             return;
