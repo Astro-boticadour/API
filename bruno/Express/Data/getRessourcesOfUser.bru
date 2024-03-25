@@ -1,0 +1,21 @@
+meta {
+  name: getRessourcesOfUser
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{Base_URL}}/data
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "firstObjectType" : "user",
+    "firstFieldId" : "pierre.david",
+    "secondaryObjectType" : "project",
+    "month" : 1,
+    "year" : 2024
+  }
+}

@@ -16,13 +16,14 @@ module.exports = async (app) => {
         // We use JOI to validate the request body
         const schema = Joi.object({
             // firstObjectType, firstFieldId, secondaryObjectType, month, year
-            firstObjectType: Joi.string().max(127).required(),
+            firstObjectType: Joi.string().valid('user', 'ressource', 'project').required(),
             firstFieldId: Joi.string().max(127).required(),
-            secondaryObjectType: Joi.string().max(127).required(),
+            secondaryObjectType: Joi.string().valid('user', 'ressource', 'project').required(),
             month: Joi.number().min(1).max(12).required(),
             year: Joi.number().min(1970).max(3000).required()
         });
-        const { error } = schema.validate(req.body);
+        console.log(req.query)
+        const { error } = schema.validate(req.query);
         if (error) {
             sendResponse(res, error.details[0].message, 400);
             return;

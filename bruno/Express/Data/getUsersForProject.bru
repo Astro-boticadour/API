@@ -1,7 +1,7 @@
 meta {
-  name: getTable
+  name: getUsersForProject
   type: http
-  seq: 1
+  seq: 2
 }
 
 get {
@@ -12,9 +12,9 @@ get {
 
 body:json {
   {
-    "firstObjectType" : "user",
-    "firstFieldId" : "pierre.david",
-    "secondaryObjectType" : "project",
+    "firstObjectType" : "project",
+    "firstFieldId" : "1",
+    "secondaryObjectType" : "user",
     "month" : 1,
     "year" : 2024
   }

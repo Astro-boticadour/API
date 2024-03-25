@@ -1,0 +1,29 @@
+meta {
+  name: getProjectsForUser
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{Base_URL}}/data?firstObjectType=ressource&firstFieldId=2&secondaryObjectType=project&month=1&year=2024
+  body: json
+  auth: none
+}
+
+query {
+  firstObjectType: ressource
+  firstFieldId: 2
+  secondaryObjectType: project
+  month: 1
+  year: 2024
+}
+
+body:json {
+  {
+    "firstObjectType" : "ressource",
+    "firstFieldId" : "2",
+    "secondaryObjectType" : "project",
+    "month" : 1,
+    "year" : 2024
+  }
+}

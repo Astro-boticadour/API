@@ -8,19 +8,21 @@ from testClasses.ressourcesTest import TestRessourcesRoutes
 from testClasses.sessionsTest import TestSessionRoutes
 from testClasses.utilisationsTest import testUtilisationsRoutes
 from testClasses.generalTest import TestGeneral
+from testClasses.dataTest import TestDataRoutes
 
 
 if __name__ == '__main__':
     # Créer une suite de tests
     suite = unittest.TestSuite()
 
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestAdminRoutes))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestUserRoutes))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestProjectRoutes))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestRessourcesRoutes))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestSessionRoutes))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(testUtilisationsRoutes))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestGeneral))
+    # suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestAdminRoutes))
+    # suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestUserRoutes))
+    # suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestProjectRoutes))
+    # suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestRessourcesRoutes))
+    # suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestSessionRoutes))
+    # suite.addTest(unittest.TestLoader().loadTestsFromTestCase(testUtilisationsRoutes))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestDataRoutes))
+    # suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestGeneral))
 
 
     # Exécuter la suite de tests
