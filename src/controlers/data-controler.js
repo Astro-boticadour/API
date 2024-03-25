@@ -22,13 +22,12 @@ module.exports = async (app) => {
             month: Joi.number().min(1).max(12).required(),
             year: Joi.number().min(1970).max(3000).required()
         });
-        console.log(req.query)
         const { error } = schema.validate(req.query);
         if (error) {
             sendResponse(res, error.details[0].message, 400);
             return;
         }
-        let result = await Data.get_item_timesheet(req.body.firstObjectType, req.body.firstFieldId, req.body.secondaryObjectType, req.body.month, req.body.year);
+        let result = await Data.get_item_timesheet(req.query.firstObjectType, req.query.firstFieldId, req.query.secondaryObjectType, req.query.month, req.query.year);
         result = formatHTTPResponse(result);
         if (result.status === "error") {
             sendResponse(res, result.message, 500);

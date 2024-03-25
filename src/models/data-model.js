@@ -17,6 +17,7 @@ module.exports = async (app) => {
       month,
       year
     ) {
+
       let start = `${year}-${month.toString().padStart(2, "0")}-01 00:00:00`; // 1er janvier 2024 : 2024-01-01 00:00:00
       let end = `${year}-${month.toString().padStart(2, "0")}-${new Date(
         year,

@@ -21,14 +21,14 @@ class TestDataRoutes(unittest.TestCase):
         self.assertEqual(res.json()['status'], 'error')
         self.assertEqual(res.json()['message'], '\"firstObjectType\" must be one of [user, ressource, project]')
     
-    def test_02_check_data_with_unkown_secondObjectType_should_return_400(self):
-        res = requests.get(BASE_URL + '/data?firstObjectType=user&secondObjectType=unkown')
+    def test_02_check_data_with_unkown_secondaryObjectType_should_return_400(self):
+        res = requests.get(BASE_URL + '/data?firstObjectType=user&secondaryObjectType=unkown&firstFieldId=1')
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res.json()['status'], 'error')
-        self.assertEqual(res.json()['message'], '"secondObjectType" must be one of [user, ressource, project]')
+        self.assertEqual(res.json()['message'], '"secondaryObjectType" must be one of [user, ressource, project]')
     
     def test_03_valid_data_should_return_200_and_list(self):
-        res = requests.get(BASE_URL + '/data?firstObjectType=user&secondObjectType=user&firstFieldId=1&secondFieldId=1')
+        res = requests.get(BASE_URL + '/data?firstObjectType=user&secondaryObjectType=user&firstFieldId=1&month=1&year=2024')
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.json()['status'], 'success')
         self.assertIsInstance(res.json()['result'], list)
