@@ -1,3 +1,5 @@
+![example workflow](https://github.com/Astro-boticadour/API/actions/workflows/ci.yaml/badge.svg)
+
 # API REST de l'application A.S.T.R.O
 ## Introduction
 Ce document décrit l'API REST de l'application A.S.T.R.O. Il est destiné aux développeurs qui souhaitent intégrer de nouvelles fonctionnalités à l'application ou maintenir son code source.
@@ -179,7 +181,7 @@ ADMIN_PASSWORD=admin
 - `yarn install` : installer les dépendances (requiert `yarn`)
 - `yarn start` : démarrer l'application
 - `yarn dev` : démarrer l'application en mode développement avec un rechargement automatique
-- `yarn test` : exécuter les tests unitaires (necessite python3 et pip install -r src/requirements.txt)
+- `yarn test` : exécuter les tests unitaires (necessite python3 et pip install -r tests/requirements.txt)
 - `yarn coverage` : générer le rapport de couverture des tests (neccessite de lancer yarn test dans un autre terminal)
 
 
