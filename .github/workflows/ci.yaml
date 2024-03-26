@@ -53,9 +53,6 @@ jobs:
         yarn test
         wait $!
 
-    - name: Stop MySQL container
-      run: docker stop mysql
-
     - name: Force add coverage folder
       run: git add -f coverage
 
