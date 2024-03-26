@@ -183,6 +183,7 @@ ADMIN_PASSWORD=admin
 - `yarn dev` : démarrer l'application en mode développement avec un rechargement automatique
 - `yarn test` : exécuter les tests unitaires (necessite python3 et pip install -r tests/requirements.txt)
 - `yarn coverage` : générer le rapport de couverture des tests (neccessite de lancer yarn test dans un autre terminal)
+- `yarn see-coverage` : utilise un server HTTP python3 pour afficher la page web de résultats de couverture du code
 
 
 ## Application de developpement
