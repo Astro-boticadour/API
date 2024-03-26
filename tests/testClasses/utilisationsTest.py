@@ -135,12 +135,13 @@ class testUtilisationsRoutes(unittest.TestCase):
         self.assertTrue('result' in res.json())
         self.assertTrue(isinstance(res.json()['result'], list))
         self.assertTrue('id' in res.json()['result'][0])
+        config.random_utilisation_id = res.json()['result'][0]['id']
         self.assertTrue('usageStartDate' in res.json()['result'][0])
         self.assertTrue('usageEndDate' in res.json()['result'][0])
         self.assertTrue('ressourceId' in res.json()['result'][0])
     
     def test_11_get_utilisation_by_id(self):
-        res = requests.get(BASE_URL + '/utilisations/1')
+        res = requests.get(BASE_URL + '/utilisations/'+str(config.random_utilisation_id))
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.json()['status'], 'success')
         self.assertTrue('result' in res.json())
@@ -149,7 +150,7 @@ class testUtilisationsRoutes(unittest.TestCase):
         self.assertTrue('usageEndDate' in res.json()['result'])
         self.assertTrue('ressourceId' in res.json()['result'])
         self.assertTrue('sessionId' in res.json()['result'])
-        self.assertEqual(res.json()['result']['id'], 1)
+        self.assertEqual(res.json()['result']['id'], config.random_utilisation_id)
     
     def test_12_get_utilisation_by_invalid_id(self):
         res = requests.get(BASE_URL + '/utilisations/0')
@@ -261,7 +262,7 @@ class testUtilisationsRoutes(unittest.TestCase):
             'usageEndDate': '2023-05-06 23:15:20'
         }
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
-        res = requests.patch(BASE_URL + '/utilisations/1', headers
+        res = requests.patch(BASE_URL + '/utilisations/'+str(config.utilisation_id), headers
         ={'Authorization': ADMIN_AUTH_HEADER}, json=current_test_data)
         self.assertEqual(res.json()['status'], 'error')
         self.assertEqual(res.status_code, 400)
@@ -272,7 +273,7 @@ class testUtilisationsRoutes(unittest.TestCase):
             'usageEndDate': (datetime.datetime.strptime(time.strftime("%Y-%m-%d %H:%M:%S"), "%Y-%m-%d %H:%M:%S") + datetime.timedelta(minutes=59)).strftime("%Y-%m-%d %H:%M:%S"),
         }
         ADMIN_AUTH_HEADER = 'Bearer ' + config.adminToken
-        res = requests.patch(BASE_URL + '/utilisations/1', headers
+        res = requests.patch(BASE_URL + '/utilisations/'+str(config.utilisation_id), headers
         ={'Authorization': ADMIN_AUTH_HEADER}, json=current_test_data)
         self.assertEqual(res.json()['status'], 'error')
         self.assertEqual(res.status_code, 400)

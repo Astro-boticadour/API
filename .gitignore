@@ -4,3 +4,4 @@ __pycache__
 .nyc_output
 nohup.out
 .env
+coverage

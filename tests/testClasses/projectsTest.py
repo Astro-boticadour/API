@@ -201,6 +201,13 @@ class TestProjectRoutes(unittest.TestCase):
         self.assertEqual(res.json()['message'], 'Project not found')
     
 
+    def test_15_options_method(self):
+        #OPTIONS shoould be ["GET","POST","PATCH","DELETE"]
+        res = requests.options(BASE_URL + '/projects')
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json()['result'], ["GET","POST","PATCH","DELETE"])
+
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

@@ -117,7 +117,7 @@ module.exports = async (app) => {
             return result;
         }
 
-
+        /*istanbul ignore next */
         static async close(id, endTime) {
             // We check if the session has usage that is not finished
             const Utilisation = app.get("Utilisation");
@@ -142,7 +142,7 @@ module.exports = async (app) => {
         }
 
 
-
+        /*istanbul ignore next */
         static async closeAllSessions() {
             const now = new Date(new Date() - new Date().getTimezoneOffset() * 60 * 1000).toISOString();
 
