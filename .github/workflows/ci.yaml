@@ -6,6 +6,8 @@ on:
 
 jobs:
   test:
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     
     steps:
@@ -51,12 +53,15 @@ jobs:
         yarn test
         wait $!
 
-    - name: Upload coverage report
-      uses: actions/upload-artifact@v2
+    - uses: stefanzweifel/git-auto-commit-action@v4
       with:
-        name: coverage
-        path: coverage
+        commit_message: "Update coverage results"
+        branch: ${{ github.ref }}
     
+    
+
+
+      
 
     - name: Stop MySQL container
       run: docker stop mysql
