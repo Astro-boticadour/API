@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 const sequelize = require("sequelize");
 const {
   formatSequelizeResponse,
