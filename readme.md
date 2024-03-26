@@ -1,3 +1,5 @@
+![example workflow](https://github.com/Astro-boticadour/API/actions/workflows/ci.yaml/badge.svg)
+
 # API REST de l'application A.S.T.R.O
 ## Introduction
 Ce document décrit l'API REST de l'application A.S.T.R.O. Il est destiné aux développeurs qui souhaitent intégrer de nouvelles fonctionnalités à l'application ou maintenir son code source.
