@@ -53,11 +53,18 @@ jobs:
         yarn test
         wait $!
 
-    - uses: stefanzweifel/git-auto-commit-action@v4
-      with:
-        commit_message: "Update coverage results"
-        branch: ${{ github.ref }}
-    
+    - name: Stop MySQL container
+      run: docker stop mysql
+
+    - name: Force add coverage folder
+      run: git add -f coverage
+
+    - name: Commit coverage results
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git commit -m "Update coverage results"
+        git push
     
 
 
