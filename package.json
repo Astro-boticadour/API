@@ -4,14 +4,14 @@
   "description": "API de l'application Astro",
   "main": "index.js",
   "repository": "git@github.com:Astro-boticadour/API.git",
-  "author": "noenic <nic.dargazanli@gmail.com>",
+  "author": "noenic <ndargazan001@iutbayonne.univ-pau.fr>",
   "license": "MIT",
   "private": false,
   "scripts": {
     "dev": "nodemon --ignore 'tests/*' src/bin.js",
     "test": "python3 -u tests/tests.py",
     "start": "node src/bin.js",
-    "coverage": "NODE_ENV=test ./node_modules/.bin/nyc --check-coverage --statements 97 node src/bin.js"
+    "coverage": "NODE_ENV=test ./node_modules/.bin/nyc --reporter lcov  --reporter text -t coverage --report-dir ./coverage/  --check-coverage --statements 97 node src/bin.js"
   },
   "dependencies": {
     "@hapi/joi": "^17.1.1",

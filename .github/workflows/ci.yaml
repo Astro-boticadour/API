@@ -51,7 +51,12 @@ jobs:
         yarn test
         wait $!
 
-
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v2
+      with:
+        name: coverage
+        path: coverage
+    
 
     - name: Stop MySQL container
       run: docker stop mysql

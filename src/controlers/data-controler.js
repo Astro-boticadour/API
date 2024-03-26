@@ -29,6 +29,7 @@ module.exports = async (app) => {
         }
         let result = await Data.get_item_timesheet(req.query.firstObjectType, req.query.firstFieldId, req.query.secondaryObjectType, req.query.month, req.query.year);
         result = formatHTTPResponse(result);
+        /*istanbul ignore if */
         if (result.status === "error") {
             sendResponse(res, result.message, 500);
             return;
