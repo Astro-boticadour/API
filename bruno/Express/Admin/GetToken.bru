@@ -1,0 +1,27 @@
+meta {
+  name: GetToken
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{Base_URL}}/login
+  body: none
+  auth: basic
+}
+
+auth:basic {
+  username: admin
+  password: admin
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJBc3RybyIsInN1YiI6IkJhc2ljIFlXUnRhVzQ2WVdSdGFXND0iLCJleHAiOjE3MTA0MjM4NzcsImlhdCI6MTcxMDQyMDI3N30.E-AQYZ5xRNl5nWPeHi8QtYwHZaVYoKTNjpO1ryWCNSw
+}
+
+script:post-response {
+  let body = res.getBody();
+  if (body.result.token){
+    bru.setVar("token",body.result.token);
+  }
+}

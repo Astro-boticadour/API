@@ -1,0 +1,21 @@
+meta {
+  name: getUsersForProject
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{Base_URL}}/data
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "firstObjectType" : "project",
+    "firstFieldId" : "1",
+    "secondaryObjectType" : "user",
+    "month" : 1,
+    "year" : 2024
+  }
+}

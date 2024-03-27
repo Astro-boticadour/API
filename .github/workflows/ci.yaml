@@ -1,0 +1,75 @@
+name: Test Astro API
+on:
+  push:
+    branches:
+      - express-version
+
+jobs:
+  test:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      
+    - name: Install Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install Yarn
+      run: |
+        sudo apt update
+        sudo apt install -y curl
+        curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+        echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+        sudo apt update
+        sudo apt install -y yarn
+
+    - name: Install dependencies with Yarn
+      run: yarn install
+
+    - name: Install dependencies with pip
+      run: pip install -r tests/requirements.txt
+
+    - name: Set and Retrieve Github ENV variables
+      shell: bash
+      run: |
+        echo "DB_NAME=astro" >> $GITHUB_ENV
+        echo "DB_USER=root" >> $GITHUB_ENV
+        echo "DB_PASS=notSecureChangeMe" >> $GITHUB_ENV
+        echo "DB_HOST=172.17.0.2" >> $GITHUB_ENV
+    
+    - name: Remove existing MySQL container and/or start a new one
+      shell: bash
+      run: docker rm -f mysql || true && docker run --name mysql -e MYSQL_ROOT_PASSWORD=notSecureChangeMe -e MYSQL_DATABASE=astro -d --rm mysql && sleep 10
+
+    - name: Start application and run tests
+      run: |
+        yarn coverage & 
+        sleep 5
+        yarn test
+        wait $!
+
+    - name: Force add coverage folder
+      run: git add -f coverage
+
+    - name: Commit coverage results
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git commit -m "Update coverage results"
+        git push
+    
+
+
+      
+
+    - name: Stop MySQL container
+      run: docker stop mysql
+      
+    
+
+

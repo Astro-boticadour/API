@@ -1,0 +1,23 @@
+meta {
+  name: UpdateUser
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{Base_URL}}/users/login5
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "pole" : "rossbotix",
+    "firstName" : "Hellos"
+    
+  }
+}

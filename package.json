@@ -1,13 +1,32 @@
 {
-    "private": true,
-    "type": "module",
-    "scripts": {
-        "dev": "vite",
-        "build": "vite build"
-    },
-    "devDependencies": {
-        "axios": "^1.6.1",
-        "laravel-vite-plugin": "^0.8.0",
-        "vite": "^4.0.0"
-    }
+  "name": "astro-api",
+  "version": "1.0.0",
+  "description": "API de l'application Astro",
+  "main": "index.js",
+  "repository": "git@github.com:Astro-boticadour/API.git",
+  "author": "noenic <ndargazan001@iutbayonne.univ-pau.fr>",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "dev": "nodemon --ignore 'tests/*' src/bin.js",
+    "test": "python3 -u tests/tests.py",
+    "start": "node src/bin.js",
+    "coverage": "NODE_ENV=test ./node_modules/.bin/nyc --reporter html  --reporter text -t coverage --report-dir ./coverage/  --check-coverage --statements 97 node src/bin.js",
+    "see-coverage": "python3 -m http.server --directory ./coverage/"
+  },
+  "dependencies": {
+    "@hapi/joi": "^17.1.1",
+    "@hapi/joi-date": "^2.0.1",
+    "bcrypt": "^5.1.1",
+    "express": "^4.18.3",
+    "express-ws": "^5.0.2",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.9.2",
+    "node-cron": "^3.0.3",
+    "sequelize": "^6.37.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.12",
+    "nyc": "^15.1.0"
+  }
 }

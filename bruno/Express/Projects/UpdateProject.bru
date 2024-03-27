@@ -1,0 +1,24 @@
+meta {
+  name: UpdateProject
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{Base_URL}}/projects/10
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name" : "Projet Airbus",
+    "dateDebut" : "2025-11-02",
+    "dateFin" : "2027-12-02",
+    "description" : "Une description meilleure description"
+  }
+}
